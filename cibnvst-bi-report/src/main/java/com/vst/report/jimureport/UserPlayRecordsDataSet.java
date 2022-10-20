@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.lang.RegexPool;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.extra.servlet.ServletUtil;
 import com.vst.report.entity.UserEvents;
 import lombok.AllArgsConstructor;
 import org.elasticsearch.index.query.TermQueryBuilder;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -66,11 +68,12 @@ public class UserPlayRecordsDataSet implements IDataSetFactory {
     }
 
     private String getClientIPElseDefaultLocal(Map<String,Object>  map){
-        String clientIP = MapUtil.getStr(map, "clientIP", "113.87.131.246");
+        String clientIP = MapUtil.getStr(map, "clientIP");
 
         if (StrUtil.isBlank(clientIP)){
             RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
-            clientIP = (String) requestAttributes.getAttribute("clientIP", RequestAttributes.SCOPE_REQUEST);
+            HttpServletRequest httpServletRequest = (HttpServletRequest) requestAttributes;
+            clientIP = ServletUtil.getClientIP(httpServletRequest);
         }
 
         if (!Pattern.matches(RegexPool.IPV4, clientIP)){

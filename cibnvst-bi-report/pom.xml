@@ -14,7 +14,7 @@
     <name>cibnvst-bi-report</name>
     <description>cibnvst-bi-report</description>
     <properties>
-        <java.version>19</java.version>
+        <java.version>17</java.version>
         <elasticsearch.version>7.10.2</elasticsearch.version>
         <hutool.version>5.8.8</hutool.version>
         <jimureport.version>1.5.3</jimureport.version>
