@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.vst.report</groupId>
     <artifactId>cibnvst-bi-report</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.2-SNAPSHOT</version>
     <name>cibnvst-bi-report</name>
     <description>cibnvst-bi-report</description>
     <properties>

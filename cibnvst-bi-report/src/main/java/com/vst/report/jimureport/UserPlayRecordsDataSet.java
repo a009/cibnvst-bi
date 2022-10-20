@@ -19,6 +19,7 @@ import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilde
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -72,8 +73,9 @@ public class UserPlayRecordsDataSet implements IDataSetFactory {
 
         if (StrUtil.isBlank(clientIP)){
             RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
-            HttpServletRequest httpServletRequest = (HttpServletRequest) requestAttributes;
-            clientIP = ServletUtil.getClientIP(httpServletRequest);
+            ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) requestAttributes;
+            HttpServletRequest request = servletRequestAttributes.getRequest();
+            clientIP = ServletUtil.getClientIP(request);
         }
 
         if (!Pattern.matches(RegexPool.IPV4, clientIP)){
