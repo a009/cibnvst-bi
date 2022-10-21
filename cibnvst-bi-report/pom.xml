@@ -11,14 +11,13 @@
     <groupId>com.vst.report</groupId>
     <artifactId>cibnvst-bi-report</artifactId>
     <version>0.0.2-SNAPSHOT</version>
-    <name>cibnvst-bi-report</name>
-    <description>cibnvst-bi-report</description>
+
     <properties>
         <java.version>17</java.version>
         <elasticsearch.version>7.10.2</elasticsearch.version>
-        <hutool.version>5.8.8</hutool.version>
         <jimureport.version>1.5.3</jimureport.version>
     </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -48,9 +47,9 @@
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>cn.hutool</groupId>
-            <artifactId>hutool-all</artifactId>
-            <version>${hutool.version}</version>
+            <groupId>com.vst.common</groupId>
+            <artifactId>cibnvst-bi-common</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
