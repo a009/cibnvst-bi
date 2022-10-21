@@ -1,0 +1,583 @@
+[
+  {
+    "name": "用户累计",
+    "disabled": false,
+    "taskType": "SIMPLE",
+    "dorisQuery": "INSERT INTO user_accumulates SELECT t1.uuid_md5, t1.pkg, t1.bdModel, t1.channel, t1.country, t1.province, t1.city, t1.verName, t1.verCode, IFNULL(t2.registerDate, date(t1.dt)) registerDate, IF(t2.activeDates IS NULL, date(t1.dt), IF(t2.activeDates LIKE CONCAT('%', t1.dt, '%'), t2.activeDates, CONCAT(t2.activeDates, ',', t1.dt))) activeDates FROM (SELECT MD5(TRIM(IFNULL(uuid, ''))) uuid_md5, TRIM(IFNULL(pkg, '')) pkg, MAX(TRIM(IFNULL(bdModel, ''))) bdModel, MAX(TRIM(IFNULL(channel, ''))) channel, MAX(TRIM(IFNULL(country, ''))) country, MAX(TRIM(IFNULL(province, ''))) province, MAX(TRIM(IFNULL(city, ''))) city, MAX(TRIM(IFNULL(verName, ''))) verName, MAX(IFNULL(verCode, 0)) verCode, DATE(requestTime) dt FROM user_events WHERE requestTime BETWEEN '{BEGIN_OF_DAY}' AND '{END_OF_DAY}' AND (requestURI IN ('/action/user', '/action/user_dayly') OR keyAction IN ('user', 'user_dayly')) GROUP BY uuid_md5, pkg, dt) t1 LEFT JOIN user_accumulates t2 ON (t1.uuid_md5 = t2.uuid_md5)"
+  },
+  {
+    "name": "用户新增(汇总)统计",
+    "tableName": "vst_user_add",
+    "dateField": "vst_ua_date",
+    "disabled": false,
+    "minusDay": [
+      -1,
+      -7,
+      -30
+    ],
+    "dorisQuery": "SELECT pkg vst_ua_pkg ,COUNT(uuid_md5) vst_ua_amount FROM user_accumulates WHERE registerDate='{DT}' GROUP BY vst_ua_pkg",
+    "h2Query": "SELECT n1.vst_ua_pkg ,n1.vst_ua_amount ,format_percent(n1.vst_ua_amount,n2.vst_ua_amount) vst_ua_dod ,format_percent(n1.vst_ua_amount,n3.vst_ua_amount) vst_ua_wow ,format_percent(n1.vst_ua_amount,n4.vst_ua_amount) vst_ua_mom,cur_timestamp() vst_ua_addtime ,cur_user() vst_ua_creator ,random_string(10) vst_ua_id ,{DT8} vst_ua_date FROM vst_user_add n1 LEFT JOIN vst_user_add1 n2 ON(n1.vst_ua_pkg=n2.vst_ua_pkg) LEFT JOIN vst_user_add7 n3 ON(n1.vst_ua_pkg=n3.vst_ua_pkg) LEFT JOIN vst_user_add30 n4 ON(n1.vst_ua_pkg=n4.vst_ua_pkg)"
+  },
+  {
+    "name": "用户新增(设备)统计",
+    "tableName": "vst_user_add_bdmodel",
+    "dateField": "vst_uab_date",
+    "disabled": false,
+    "minusDay": [
+      -1,
+      -7,
+      -30
+    ],
+    "dorisQuery": "SELECT pkg vst_uab_pkg, bdModel vst_uab_bdmodel, COUNT(uuid_md5) vst_uab_amount FROM user_accumulates WHERE registerDate='{DT}' GROUP BY vst_uab_pkg,vst_uab_bdmodel",
+    "h2Query": "SELECT n1.vst_uab_pkg, n1.vst_uab_bdmodel, n1.vst_uab_amount, format_percent(n1.vst_uab_amount, n2.vst_uab_amount) vst_uab_dod, format_percent(n1.vst_uab_amount, n3.vst_uab_amount) vst_uab_wow, format_percent(n1.vst_uab_amount, n4.vst_uab_amount) vst_uab_mom, '0.00%' vst_uab_rate, cur_timestamp() vst_uab_addtime, cur_user() vst_uab_creator, random_string(10) vst_uab_id, {DT8} vst_uab_date FROM vst_user_add_bdmodel n1 LEFT JOIN vst_user_add_bdmodel1 n2 ON (n1.vst_uab_pkg = n2.vst_uab_pkg AND n1.vst_uab_bdmodel=n2.vst_uab_bdmodel) LEFT JOIN vst_user_add_bdmodel7 n3 ON (n1.vst_uab_pkg = n3.vst_uab_pkg AND n1.vst_uab_bdmodel=n3.vst_uab_bdmodel) LEFT JOIN vst_user_add_bdmodel30 n4 ON (n1.vst_uab_pkg = n4.vst_uab_pkg AND n1.vst_uab_bdmodel=n4.vst_uab_bdmodel)"
+  },
+  {
+    "name": "用户新增(渠道)统计",
+    "tableName": "vst_user_add_channel",
+    "dateField": "vst_uac_date",
+    "disabled": false,
+    "minusDay": [
+      -1,
+      -7,
+      -30
+    ],
+    "dorisQuery": "SELECT pkg vst_uac_pkg, channel vst_uac_channel, COUNT(uuid_md5) vst_uac_amount FROM user_accumulates WHERE registerDate='{DT}' GROUP BY vst_uac_pkg, vst_uac_channel",
+    "h2Query": "SELECT n1.vst_uac_pkg, n1.vst_uac_channel, n1.vst_uac_amount, format_percent(n1.vst_uac_amount, n2.vst_uac_amount) vst_uac_dod, format_percent(n1.vst_uac_amount, n3.vst_uac_amount) vst_uac_wow, format_percent(n1.vst_uac_amount, n4.vst_uac_amount) vst_uac_mom, cur_timestamp() vst_uac_addtime, cur_user() vst_uac_creator, random_string(10) vst_uac_id, {DT8} vst_uac_date FROM vst_user_add_channel n1 LEFT JOIN vst_user_add_channel1 n2 ON (n1.vst_uac_pkg = n2.vst_uac_pkg AND n1.vst_uac_channel = n2.vst_uac_channel) LEFT JOIN vst_user_add_channel7 n3 ON (n1.vst_uac_pkg = n3.vst_uac_pkg AND n1.vst_uac_channel = n3.vst_uac_channel) LEFT JOIN vst_user_add_channel30 n4 ON (n1.vst_uac_pkg = n4.vst_uac_pkg AND n1.vst_uac_channel = n4.vst_uac_channel)"
+  },
+  {
+    "name": "用户新增(渠道&设备)统计",
+    "tableName": "vst_user_add_channel_bdmodel",
+    "dateField": "vst_uacb_date",
+    "disabled": false,
+    "minusDay": [
+      -1,
+      -7,
+      -30
+    ],
+    "dorisQuery": "SELECT pkg vst_uacb_pkg, channel vst_uacb_channel,bdModel vst_uacb_bdmodel, COUNT(uuid_md5) vst_uacb_amount FROM user_accumulates WHERE registerDate='{DT}' GROUP BY vst_uacb_pkg, vst_uacb_channel, vst_uacb_bdmodel",
+    "h2Query": "SELECT n1.vst_uacb_pkg, n1.vst_uacb_bdmodel, n1.vst_uacb_channel,n1.vst_uacb_amount, format_percent(n1.vst_uacb_amount, n2.vst_uacb_amount) vst_uacb_dod, format_percent(n1.vst_uacb_amount, n3.vst_uacb_amount) vst_uacb_wow, format_percent(n1.vst_uacb_amount, n4.vst_uacb_amount) vst_uacb_mom, '0.00%' vst_uacb_rate, cur_timestamp() vst_uacb_addtime, cur_user() vst_uacb_creator, random_string(10) vst_uacb_id, {DT8} vst_uacb_date FROM vst_user_add_channel_bdmodel n1 LEFT JOIN vst_user_add_channel_bdmodel1 n2 ON (n1.vst_uacb_pkg = n2.vst_uacb_pkg AND n1.vst_uacb_bdmodel=n2.vst_uacb_bdmodel AND n1.vst_uacb_channel=n2.vst_uacb_channel) LEFT JOIN vst_user_add_channel_bdmodel7 n3 ON (n1.vst_uacb_pkg = n3.vst_uacb_pkg AND n1.vst_uacb_bdmodel=n3.vst_uacb_bdmodel AND n1.vst_uacb_channel=n3.vst_uacb_channel) LEFT JOIN vst_user_add_channel_bdmodel30 n4 ON (n1.vst_uacb_pkg = n4.vst_uacb_pkg AND n1.vst_uacb_bdmodel=n4.vst_uacb_bdmodel AND n1.vst_uacb_channel=n4.vst_uacb_channel)"
+  },
+  {
+    "name": "用户新增(渠道&版本)统计",
+    "tableName": "vst_user_add_channel_version",
+    "dateField": "vst_uacv_date",
+    "disabled": false,
+    "minusDay": [
+      -1,
+      -7,
+      -30
+    ],
+    "dorisQuery": "SELECT pkg vst_uacv_pkg, channel vst_uacv_channel, verName vst_uacv_version, COUNT(uuid_md5) vst_uacv_amount FROM user_accumulates WHERE registerDate='{DT}' GROUP BY vst_uacv_pkg, vst_uacv_channel, vst_uacv_version",
+    "h2Query": "SELECT n1.vst_uacv_pkg, n1.vst_uacv_channel,n1.vst_uacv_version, n1.vst_uacv_amount, format_percent(n1.vst_uacv_amount, n2.vst_uacv_amount) vst_uacv_dod, format_percent(n1.vst_uacv_amount, n3.vst_uacv_amount) vst_uacv_wow, format_percent(n1.vst_uacv_amount, n4.vst_uacv_amount) vst_uacv_mom, cur_timestamp() vst_uacv_addtime, cur_user() vst_uacv_creator, random_string(10) vst_uacv_id, {DT8} vst_uacv_date FROM vst_user_add_channel_version n1 LEFT JOIN vst_user_add_channel_version1 n2 ON (n1.vst_uacv_pkg = n2.vst_uacv_pkg AND n1.vst_uacv_channel = n2.vst_uacv_channel AND n1.vst_uacv_version=n2.vst_uacv_version) LEFT JOIN vst_user_add_channel_version7 n3 ON (n1.vst_uacv_pkg = n3.vst_uacv_pkg AND n1.vst_uacv_channel = n3.vst_uacv_channel AND n1.vst_uacv_version=n3.vst_uacv_version) LEFT JOIN vst_user_add_channel_version30 n4 ON (n1.vst_uacv_pkg = n4.vst_uacv_pkg AND n1.vst_uacv_channel = n4.vst_uacv_channel AND n1.vst_uacv_version=n4.vst_uacv_version)"
+  },
+  {
+    "name": "用户新增(城市)统计",
+    "tableName": "vst_user_add_city",
+    "dateField": "vst_uaci_date",
+    "disabled": false,
+    "minusDay": [
+      -1,
+      -7,
+      -30
+    ],
+    "dorisQuery": "SELECT pkg vst_uaci_pkg, city vst_uaci_city, COUNT(uuid_md5) vst_uaci_amount FROM user_accumulates WHERE registerDate='{DT}' GROUP BY vst_uaci_pkg,vst_uaci_city",
+    "h2Query": "SELECT n1.vst_uaci_pkg, n1.vst_uaci_city, n1.vst_uaci_amount, format_percent(n1.vst_uaci_amount, n2.vst_uaci_amount) vst_uaci_dod, format_percent(n1.vst_uaci_amount, n3.vst_uaci_amount) vst_uaci_wow, format_percent(n1.vst_uaci_amount, n4.vst_uaci_amount) vst_uaci_mom, cur_timestamp() vst_uaci_addtime, cur_user() vst_uaci_creator, random_string(10) vst_uaci_id, {DT8} vst_uaci_date FROM vst_user_add_city n1 LEFT JOIN vst_user_add_city1 n2 ON (n1.vst_uaci_pkg = n2.vst_uaci_pkg AND n1.vst_uaci_city = n2.vst_uaci_city) LEFT JOIN vst_user_add_city7 n3 ON (n1.vst_uaci_pkg = n3.vst_uaci_pkg AND n1.vst_uaci_city = n3.vst_uaci_city) LEFT JOIN vst_user_add_city30 n4 ON (n1.vst_uaci_pkg = n4.vst_uaci_pkg AND n1.vst_uaci_city = n4.vst_uaci_city)"
+  },
+  {
+    "name": "用户新增(省份)统计",
+    "tableName": "vst_user_add_province",
+    "dateField": "vst_uap_date",
+    "disabled": false,
+    "minusDay": [
+      -1,
+      -7,
+      -30
+    ],
+    "dorisQuery": "SELECT pkg vst_uap_pkg, province vst_uap_province, COUNT(uuid_md5) vst_uap_amount FROM user_accumulates WHERE registerDate='{DT}' GROUP BY vst_uap_pkg, vst_uap_province",
+    "h2Query": "SELECT n1.vst_uap_pkg, n1.vst_uap_province, n1.vst_uap_amount, format_percent(n1.vst_uap_amount, n2.vst_uap_amount) vst_uap_dod, format_percent(n1.vst_uap_amount, n3.vst_uap_amount) vst_uap_wow, format_percent(n1.vst_uap_amount, n4.vst_uap_amount) vst_uap_mom, cur_timestamp() vst_uap_addtime, cur_user() vst_uap_creator, random_string(10) vst_uap_id, {DT8} vst_uap_date FROM vst_user_add_province n1 LEFT JOIN vst_user_add_province1 n2 ON (n1.vst_uap_pkg = n2.vst_uap_pkg AND n1.vst_uap_province = n2.vst_uap_province) LEFT JOIN vst_user_add_province7 n3 ON (n1.vst_uap_pkg = n3.vst_uap_pkg AND n1.vst_uap_province = n3.vst_uap_province) LEFT JOIN vst_user_add_province30 n4 ON (n1.vst_uap_pkg = n4.vst_uap_pkg AND n1.vst_uap_province = n4.vst_uap_province)"
+  },
+  {
+    "name": "用户新增(升级)统计",
+    "tableName": "vst_user_add_upVer",
+    "dateField": "vst_uau_date",
+    "disabled": false,
+    "minusDay": [
+      -1,
+      -7,
+      -30
+    ],
+    "dorisQuery": "SELECT pkg vst_uau_pkg, verCode vst_uau_verNum, COUNT(uuid_md5) vst_uau_amount FROM user_accumulates WHERE registerDate='{DT}' GROUP BY vst_uau_pkg, vst_uau_verNum",
+    "h2Query": "SELECT n1.vst_uau_pkg, n1.vst_uau_verNum, n1.vst_uau_amount, format_percent(n1.vst_uau_amount, n2.vst_uau_amount) vst_uau_dod, format_percent(n1.vst_uau_amount, n3.vst_uau_amount) vst_uau_wow, format_percent(n1.vst_uau_amount, n4.vst_uau_amount) vst_uau_mom, cur_timestamp() vst_uau_addtime, cur_user() vst_uau_creator, random_string(10) vst_uau_id, {DT8} vst_uau_date FROM vst_user_add_upVer n1 LEFT JOIN vst_user_add_upVer1 n2 ON (n1.vst_uau_pkg = n2.vst_uau_pkg AND n1.vst_uau_verNum = n2.vst_uau_verNum) LEFT JOIN vst_user_add_upVer7 n3 ON (n1.vst_uau_pkg = n3.vst_uau_pkg AND n1.vst_uau_verNum = n3.vst_uau_verNum) LEFT JOIN vst_user_add_upVer30 n4 ON (n1.vst_uau_pkg = n4.vst_uau_pkg AND n1.vst_uau_verNum = n4.vst_uau_verNum)"
+  },
+  {
+    "name": "用户新增(版本)统计",
+    "tableName": "vst_user_add_version",
+    "dateField": "vst_uav_date",
+    "disabled": false,
+    "minusDay": [
+      -1,
+      -7,
+      -30
+    ],
+    "dorisQuery": "SELECT pkg vst_uav_pkg, verName vst_uav_ver, COUNT(uuid_md5) vst_uav_amount FROM user_accumulates WHERE registerDate='{DT}' GROUP BY vst_uav_pkg, vst_uav_ver",
+    "h2Query": "SELECT n1.vst_uav_pkg, n1.vst_uav_ver, n1.vst_uav_amount, format_percent(n1.vst_uav_amount, n2.vst_uav_amount) vst_uav_dod, format_percent(n1.vst_uav_amount, n3.vst_uav_amount) vst_uav_wow, format_percent(n1.vst_uav_amount, n4.vst_uav_amount) vst_uav_mom, cur_timestamp() vst_uav_addtime, cur_user() vst_uav_creator, random_string(10) vst_uav_id, {DT8} vst_uav_date FROM vst_user_add_version n1 LEFT JOIN vst_user_add_version1 n2 ON (n1.vst_uav_pkg = n2.vst_uav_pkg AND n1.vst_uav_ver = n2.vst_uav_ver) LEFT JOIN vst_user_add_version7 n3 ON (n1.vst_uav_pkg = n3.vst_uav_pkg AND n1.vst_uav_ver = n3.vst_uav_ver) LEFT JOIN vst_user_add_version30 n4 ON (n1.vst_uav_pkg = n4.vst_uav_pkg AND n1.vst_uav_ver = n4.vst_uav_ver)"
+  },
+  {
+    "name": "用户新增(版本&设备)统计",
+    "tableName": "vst_user_add_version_bdmodel",
+    "dateField": "vst_uavb_date",
+    "disabled": false,
+    "minusDay": [
+      -1,
+      -7,
+      -30
+    ],
+    "dorisQuery": "SELECT pkg vst_uavb_pkg,verName vst_uavb_version,bdModel vst_uavb_bdmodel, COUNT(*) vst_uavb_amount FROM user_accumulates WHERE registerDate='{DT}' GROUP BY vst_uavb_pkg, vst_uavb_version, vst_uavb_bdmodel",
+    "h2Query": "SELECT n1.vst_uavb_pkg, n1.vst_uavb_version,n1.vst_uavb_bdmodel,n1.vst_uavb_amount, format_percent(n1.vst_uavb_amount, n2.vst_uavb_amount) vst_uavb_dod, format_percent(n1.vst_uavb_amount, n3.vst_uavb_amount) vst_uavb_wow, format_percent(n1.vst_uavb_amount, n4.vst_uavb_amount) vst_uavb_mom, cur_timestamp() vst_uavb_addtime, cur_user() vst_uavb_creator, random_string(10) vst_uavb_id, {DT8} vst_uavb_date FROM vst_user_add_version_bdmodel n1 LEFT JOIN vst_user_add_version_bdmodel1 n2 ON (n1.vst_uavb_pkg = n2.vst_uavb_pkg AND n1.vst_uavb_version=n2.vst_uavb_version AND n1.vst_uavb_bdmodel=n2.vst_uavb_bdmodel) LEFT JOIN vst_user_add_version_bdmodel7 n3 ON (n1.vst_uavb_pkg = n3.vst_uavb_pkg AND n1.vst_uavb_version=n3.vst_uavb_version AND n1.vst_uavb_bdmodel=n3.vst_uavb_bdmodel) LEFT JOIN vst_user_add_version_bdmodel30 n4 ON (n1.vst_uavb_pkg = n4.vst_uavb_pkg AND n1.vst_uavb_version=n4.vst_uavb_version AND n1.vst_uavb_bdmodel=n4.vst_uavb_bdmodel)"
+  },
+  {
+    "name": "用户新增(版本&升级)统计",
+    "tableName": "vst_user_add_version_upVer",
+    "dateField": "vst_uavu_date",
+    "disabled": false,
+    "minusDay": [
+      -1,
+      -7,
+      -30
+    ],
+    "dorisQuery": "SELECT pkg vst_uavu_pkg, verName vst_uavu_version,verCode vst_uavu_upVer, COUNT(uuid_md5) vst_uavu_amount FROM user_accumulates WHERE registerDate='{DT}' GROUP BY vst_uavu_pkg, vst_uavu_version, vst_uavu_upVer",
+    "h2Query": "SELECT n1.vst_uavu_pkg, n1.vst_uavu_version, n1.vst_uavu_upVer, n1.vst_uavu_amount, format_percent(n1.vst_uavu_amount, n2.vst_uavu_amount) vst_uavu_dod, format_percent(n1.vst_uavu_amount, n3.vst_uavu_amount) vst_uavu_wow, format_percent(n1.vst_uavu_amount, n4.vst_uavu_amount) vst_uavu_mom, cur_timestamp() vst_uavu_addtime, cur_user() vst_uavu_creator, random_string(10) vst_uavu_id, {DT8} vst_uavu_date FROM vst_user_add_version_upVer n1 LEFT JOIN vst_user_add_version_upVer1 n2 ON (n1.vst_uavu_pkg = n2.vst_uavu_pkg AND n1.vst_uavu_version=n2.vst_uavu_version AND n1.vst_uavu_upVer = n2.vst_uavu_upVer) LEFT JOIN vst_user_add_version_upVer7 n3 ON (n1.vst_uavu_pkg = n3.vst_uavu_pkg AND n1.vst_uavu_version=n3.vst_uavu_version AND n1.vst_uavu_upVer = n3.vst_uavu_upVer) LEFT JOIN vst_user_add_version_upVer30 n4 ON (n1.vst_uavu_pkg = n4.vst_uavu_pkg AND n1.vst_uavu_version=n2.vst_uavu_version AND n1.vst_uavu_upVer = n4.vst_uavu_upVer)"
+  },
+  {
+    "name": "用户累计(汇总)统计",
+    "tableName": "vst_user_sum",
+    "dateField": "vst_us_date",
+    "disabled": false,
+    "minusDay": [
+      -1,
+      -7,
+      -30
+    ],
+    "dorisQuery": "SELECT pkg vst_us_pkg ,COUNT(uuid_md5) vst_us_amount FROM user_accumulates GROUP BY vst_us_pkg",
+    "h2Query": "SELECT n1.vst_us_pkg ,n1.vst_us_amount ,format_percent(n1.vst_us_amount,n2.vst_us_amount) vst_us_dod ,format_percent(n1.vst_us_amount,n3.vst_us_amount) vst_us_wow ,format_percent(n1.vst_us_amount,n4.vst_us_amount) vst_us_mom,cur_timestamp() vst_us_addtime ,cur_user() vst_us_creator ,random_string(10) vst_us_id ,{DT8} vst_us_date FROM vst_user_sum n1 LEFT JOIN vst_user_sum1 n2 ON(n1.vst_us_pkg=n2.vst_us_pkg) LEFT JOIN vst_user_sum7 n3 ON(n1.vst_us_pkg=n3.vst_us_pkg) LEFT JOIN vst_user_sum30 n4 ON(n1.vst_us_pkg=n4.vst_us_pkg)"
+  },
+  {
+    "name": "用户累计(设备)统计-慢任务9分钟",
+    "tableName": "vst_user_sum_bdmodel",
+    "dateField": "vst_usb_date",
+    "disabled": true,
+    "minusDay": [
+      -1,
+      -7,
+      -30
+    ],
+    "dorisQuery": "SELECT pkg vst_usb_pkg, bdModel vst_usb_bdmodel, COUNT(uuid_md5) vst_usb_amount FROM user_accumulates GROUP BY vst_usb_pkg, vst_usb_bdmodel",
+    "h2Query": "SELECT n1.vst_usb_pkg, n1.vst_usb_bdmodel, n1.vst_usb_amount, format_percent(n1.vst_usb_amount, n2.vst_usb_amount) vst_usb_dod, format_percent(n1.vst_usb_amount, n3.vst_usb_amount) vst_usb_wow, format_percent(n1.vst_usb_amount, n4.vst_usb_amount) vst_usb_mom, '0.00%' vst_usb_rate, cur_timestamp() vst_usb_addtime, cur_user() vst_usb_creator, random_string(10) vst_usb_id, {DT8} vst_usb_date FROM vst_user_sum_bdmodel n1 LEFT JOIN vst_user_sum_bdmodel1 n2 ON (n1.vst_usb_pkg = n2.vst_usb_pkg AND n1.vst_usb_bdmodel=n2.vst_usb_bdmodel) LEFT JOIN vst_user_sum_bdmodel7 n3 ON (n1.vst_usb_pkg = n3.vst_usb_pkg AND n1.vst_usb_bdmodel=n3.vst_usb_bdmodel) LEFT JOIN vst_user_sum_bdmodel30 n4 ON (n1.vst_usb_pkg = n4.vst_usb_pkg AND n1.vst_usb_bdmodel=n4.vst_usb_bdmodel)"
+  },
+  {
+    "name": "用户累计(渠道)统计",
+    "tableName": "vst_user_sum_channel",
+    "dateField": "vst_usc_date",
+    "disabled": false,
+    "minusDay": [
+      -1,
+      -7,
+      -30
+    ],
+    "dorisQuery": "SELECT pkg vst_usc_pkg, channel vst_usc_channel, COUNT(uuid_md5) vst_usc_amount FROM user_accumulates  GROUP BY vst_usc_pkg, vst_usc_channel",
+    "h2Query": "SELECT n1.vst_usc_pkg, n1.vst_usc_channel, n1.vst_usc_amount, format_percent(n1.vst_usc_amount, n2.vst_usc_amount) vst_usc_dod, format_percent(n1.vst_usc_amount, n3.vst_usc_amount) vst_usc_wow, format_percent(n1.vst_usc_amount, n4.vst_usc_amount) vst_usc_mom, cur_timestamp() vst_usc_addtime, cur_user() vst_usc_creator, random_string(10) vst_usc_id, {DT8} vst_usc_date FROM vst_user_sum_channel n1 LEFT JOIN vst_user_sum_channel1 n2 ON (n1.vst_usc_pkg = n2.vst_usc_pkg AND n1.vst_usc_channel = n2.vst_usc_channel) LEFT JOIN vst_user_sum_channel7 n3 ON (n1.vst_usc_pkg = n3.vst_usc_pkg AND n1.vst_usc_channel = n3.vst_usc_channel) LEFT JOIN vst_user_sum_channel30 n4 ON (n1.vst_usc_pkg = n4.vst_usc_pkg AND n1.vst_usc_channel = n4.vst_usc_channel)"
+  },
+  {
+    "name": "用户累计(渠道&设备)统计-慢任务71分钟",
+    "tableName": "vst_user_sum_channel_bdmodel",
+    "dateField": "vst_uscb_date",
+    "disabled": true,
+    "minusDay": [
+      -1,
+      -7,
+      -30
+    ],
+    "dorisQuery": "SELECT pkg vst_uscb_pkg, channel vst_uscb_channel, bdModel vst_uscb_bdmodel, COUNT(uuid_md5) vst_uscb_amount FROM user_accumulates GROUP BY vst_uscb_pkg, vst_uscb_channel, vst_uscb_bdmodel",
+    "h2Query": "SELECT n1.vst_uscb_pkg, n1.vst_uscb_channel, n1.vst_uscb_bdmodel, n1.vst_uscb_amount, format_percent(n1.vst_uscb_amount, n2.vst_uscb_amount) vst_uscb_dod, format_percent(n1.vst_uscb_amount, n3.vst_uscb_amount) vst_uscb_wow, format_percent(n1.vst_uscb_amount, n4.vst_uscb_amount) vst_uscb_mom, '0.00%' vst_uscb_rate, cur_timestamp() vst_uscb_addtime, cur_user() vst_uscb_creator, random_string(10) vst_uscb_id, {DT8} vst_uscb_date FROM vst_user_sum_channel_bdmodel n1 LEFT JOIN vst_user_sum_channel_bdmodel1 n2 ON (n1.vst_uscb_pkg = n2.vst_uscb_pkg AND n1.vst_uscb_bdmodel=n2.vst_uscb_bdmodel AND n1.vst_uscb_channel=n2.vst_uscb_channel) LEFT JOIN vst_user_sum_channel_bdmodel7 n3 ON (n1.vst_uscb_pkg = n3.vst_uscb_pkg AND n1.vst_uscb_bdmodel=n3.vst_uscb_bdmodel AND n1.vst_uscb_channel=n3.vst_uscb_channel) LEFT JOIN vst_user_sum_channel_bdmodel30 n4 ON (n1.vst_uscb_pkg = n4.vst_uscb_pkg AND n1.vst_uscb_bdmodel=n4.vst_uscb_bdmodel AND n1.vst_uscb_channel=n4.vst_uscb_channel)"
+  },
+  {
+    "name": "用户累计(城市)统计",
+    "tableName": "vst_user_sum_city",
+    "dateField": "vst_usci_date",
+    "disabled": false,
+    "minusDay": [
+      -1,
+      -7,
+      -30
+    ],
+    "dorisQuery": "SELECT pkg vst_usci_pkg, city vst_usci_city, COUNT(uuid_md5) vst_usci_amount FROM user_accumulates GROUP BY vst_usci_pkg, vst_usci_city",
+    "h2Query": "SELECT n1.vst_usci_pkg, n1.vst_usci_city, n1.vst_usci_amount, format_percent(n1.vst_usci_amount, n2.vst_usci_amount) vst_usci_dod, format_percent(n1.vst_usci_amount, n3.vst_usci_amount) vst_usci_wow, format_percent(n1.vst_usci_amount, n4.vst_usci_amount) vst_usci_mom, cur_timestamp() vst_usci_addtime, cur_user() vst_usci_creator, random_string(10) vst_usci_id, {DT8} vst_usci_date FROM vst_user_sum_city n1 LEFT JOIN vst_user_sum_city1 n2 ON (n1.vst_usci_pkg = n2.vst_usci_pkg AND n1.vst_usci_city = n2.vst_usci_city) LEFT JOIN vst_user_sum_city7 n3 ON (n1.vst_usci_pkg = n3.vst_usci_pkg AND n1.vst_usci_city = n3.vst_usci_city) LEFT JOIN vst_user_sum_city30 n4 ON (n1.vst_usci_pkg = n4.vst_usci_pkg AND n1.vst_usci_city = n4.vst_usci_city)"
+  },
+  {
+    "name": "用户累计(省份)统计",
+    "tableName": "vst_user_sum_province",
+    "dateField": "vst_usp_date",
+    "disabled": false,
+    "minusDay": [
+      -1,
+      -7,
+      -30
+    ],
+    "dorisQuery": "SELECT pkg vst_usp_pkg, province vst_usp_province, COUNT(uuid_md5) vst_usp_amount FROM user_accumulates GROUP BY vst_usp_pkg, vst_usp_province",
+    "h2Query": "SELECT n1.vst_usp_pkg, n1.vst_usp_province, n1.vst_usp_amount, format_percent(n1.vst_usp_amount, n2.vst_usp_amount) vst_usp_dod, format_percent(n1.vst_usp_amount, n3.vst_usp_amount) vst_usp_wow, format_percent(n1.vst_usp_amount, n4.vst_usp_amount) vst_usp_mom, cur_timestamp() vst_usp_addtime, cur_user() vst_usp_creator, random_string(10) vst_usp_id, {DT8} vst_usp_date FROM vst_user_sum_province n1 LEFT JOIN vst_user_sum_province1 n2 ON (n1.vst_usp_pkg = n2.vst_usp_pkg AND n1.vst_usp_province = n2.vst_usp_province) LEFT JOIN vst_user_sum_province7 n3 ON (n1.vst_usp_pkg = n3.vst_usp_pkg AND n1.vst_usp_province = n3.vst_usp_province) LEFT JOIN vst_user_sum_province30 n4 ON (n1.vst_usp_pkg = n4.vst_usp_pkg AND n1.vst_usp_province = n4.vst_usp_province)"
+  },
+  {
+    "name": "用户累计(升级)统计",
+    "tableName": "vst_user_sum_upVer",
+    "dateField": "vst_usu_date",
+    "disabled": false,
+    "minusDay": [
+      -1,
+      -7,
+      -30
+    ],
+    "dorisQuery": "SELECT pkg vst_usu_pkg, verCode vst_usu_verNum, COUNT(uuid_md5) vst_usu_amount FROM user_accumulates GROUP BY vst_usu_pkg, vst_usu_verNum",
+    "h2Query": "SELECT n1.vst_usu_pkg, n1.vst_usu_verNum, n1.vst_usu_amount, format_percent(n1.vst_usu_amount, n2.vst_usu_amount) vst_usu_dod, format_percent(n1.vst_usu_amount, n3.vst_usu_amount) vst_usu_wow, format_percent(n1.vst_usu_amount, n4.vst_usu_amount) vst_usu_mom, cur_timestamp() vst_usu_addtime, cur_user() vst_usu_creator, random_string(10) vst_usu_id, {DT8} vst_usu_date FROM vst_user_sum_upVer n1 LEFT JOIN vst_user_sum_upVer1 n2 ON (n1.vst_usu_pkg = n2.vst_usu_pkg AND n1.vst_usu_verNum = n2.vst_usu_verNum) LEFT JOIN vst_user_sum_upVer7 n3 ON (n1.vst_usu_pkg = n3.vst_usu_pkg AND n1.vst_usu_verNum = n3.vst_usu_verNum) LEFT JOIN vst_user_sum_upVer30 n4 ON (n1.vst_usu_pkg = n4.vst_usu_pkg AND n1.vst_usu_verNum = n4.vst_usu_verNum)"
+  },
+  {
+    "name": "用户累计(版本)统计",
+    "tableName": "vst_user_sum_version",
+    "dateField": "vst_usv_date",
+    "disabled": false,
+    "minusDay": [
+      -1,
+      -7,
+      -30
+    ],
+    "dorisQuery": "SELECT pkg vst_usv_pkg, verName vst_usv_ver, COUNT(uuid_md5) vst_usv_amount FROM user_accumulates GROUP BY vst_usv_pkg, vst_usv_ver",
+    "h2Query": "SELECT n1.vst_usv_pkg, n1.vst_usv_ver, n1.vst_usv_amount, format_percent(n1.vst_usv_amount, n2.vst_usv_amount) vst_usv_dod, format_percent(n1.vst_usv_amount, n3.vst_usv_amount) vst_usv_wow, format_percent(n1.vst_usv_amount, n4.vst_usv_amount) vst_usv_mom, cur_timestamp() vst_usv_addtime, cur_user() vst_usv_creator, random_string(10) vst_usv_id, {DT8} vst_usv_date FROM vst_user_sum_version n1 LEFT JOIN vst_user_sum_version1 n2 ON (n1.vst_usv_pkg = n2.vst_usv_pkg AND n1.vst_usv_ver = n2.vst_usv_ver) LEFT JOIN vst_user_sum_version7 n3 ON (n1.vst_usv_pkg = n3.vst_usv_pkg AND n1.vst_usv_ver = n3.vst_usv_ver) LEFT JOIN vst_user_sum_version30 n4 ON (n1.vst_usv_pkg = n4.vst_usv_pkg AND n1.vst_usv_ver = n4.vst_usv_ver)"
+  },
+  {
+    "name": "用户累计(版本&设备)统计",
+    "tableName": "vst_user_sum_version_bdmodel",
+    "dateField": "vst_usvb_date",
+    "disabled": true,
+    "minusDay": [
+      -1,
+      -7,
+      -30
+    ],
+    "dorisQuery": "SELECT pkg vst_usvb_pkg,verName vst_usvb_version,bdModel vst_usvb_bdmodel, COUNT(uuid_md5) vst_usvb_amount FROM user_accumulates GROUP BY vst_usvb_pkg, vst_usvb_version, vst_usvb_bdmodel",
+    "h2Query": "SELECT n1.vst_usvb_pkg, n1.vst_usvb_version,n1.vst_usvb_bdmodel,n1.vst_usvb_amount, format_percent(n1.vst_usvb_amount, n2.vst_usvb_amount) vst_usvb_dod, format_percent(n1.vst_usvb_amount, n3.vst_usvb_amount) vst_usvb_wow, format_percent(n1.vst_usvb_amount, n4.vst_usvb_amount) vst_usvb_mom, cur_timestamp() vst_usvb_addtime, cur_user() vst_usvb_creator, random_string(10) vst_usvb_id, {DT8} vst_usvb_date FROM vst_user_sum_version_bdmodel n1 LEFT JOIN vst_user_sum_version_bdmodel1 n2 ON (n1.vst_usvb_pkg = n2.vst_usvb_pkg AND n1.vst_usvb_version=n2.vst_usvb_version AND n1.vst_usvb_bdmodel=n2.vst_usvb_bdmodel) LEFT JOIN vst_user_sum_version_bdmodel7 n3 ON (n1.vst_usvb_pkg = n3.vst_usvb_pkg AND n1.vst_usvb_version=n3.vst_usvb_version AND n1.vst_usvb_bdmodel=n3.vst_usvb_bdmodel) LEFT JOIN vst_user_sum_version_bdmodel30 n4 ON (n1.vst_usvb_pkg = n4.vst_usvb_pkg AND n1.vst_usvb_version=n4.vst_usvb_version AND n1.vst_usvb_bdmodel=n4.vst_usvb_bdmodel)"
+  },
+  {
+    "name": "用户累计(渠道&版本)统计",
+    "tableName": "vst_user_sum_channel_version",
+    "dateField": "vst_uscv_date",
+    "disabled": false,
+    "minusDay": [
+      -1,
+      -7,
+      -30
+    ],
+    "dorisQuery": "SELECT pkg vst_uscv_pkg, channel vst_uscv_channel, verName vst_uscv_version, COUNT(uuid_md5) vst_uscv_amount FROM user_accumulates GROUP BY vst_uscv_pkg, vst_uscv_channel, vst_uscv_version",
+    "h2Query": "SELECT n1.vst_uscv_pkg, n1.vst_uscv_channel,n1.vst_uscv_version, n1.vst_uscv_amount, format_percent(n1.vst_uscv_amount, n2.vst_uscv_amount) vst_uscv_dod, format_percent(n1.vst_uscv_amount, n3.vst_uscv_amount) vst_uscv_wow, format_percent(n1.vst_uscv_amount, n4.vst_uscv_amount) vst_uscv_mom, cur_timestamp() vst_uscv_addtime, cur_user() vst_uscv_creator, random_string(10) vst_uscv_id, {DT8} vst_uscv_date FROM vst_user_sum_channel_version n1 LEFT JOIN vst_user_sum_channel_version1 n2 ON (n1.vst_uscv_pkg = n2.vst_uscv_pkg AND n1.vst_uscv_channel = n2.vst_uscv_channel AND n1.vst_uscv_version=n2.vst_uscv_version) LEFT JOIN vst_user_sum_channel_version7 n3 ON (n1.vst_uscv_pkg = n3.vst_uscv_pkg AND n1.vst_uscv_channel = n3.vst_uscv_channel AND n1.vst_uscv_version=n3.vst_uscv_version) LEFT JOIN vst_user_sum_channel_version30 n4 ON (n1.vst_uscv_pkg = n4.vst_uscv_pkg AND n1.vst_uscv_channel = n4.vst_uscv_channel AND n1.vst_uscv_version=n4.vst_uscv_version)"
+  },
+  {
+    "name": "用户累计(版本&升级)统计",
+    "tableName": "vst_user_sum_version_upVer",
+    "dateField": "vst_usvu_date",
+    "disabled": false,
+    "minusDay": [
+      -1,
+      -7,
+      -30
+    ],
+    "dorisQuery": "SELECT pkg vst_usvu_pkg, verName vst_usvu_version,verCode vst_usvu_upVer, COUNT(uuid_md5) vst_usvu_amount FROM user_accumulates GROUP BY vst_usvu_pkg, vst_usvu_version, vst_usvu_upVer",
+    "h2Query": "SELECT n1.vst_usvu_pkg, n1.vst_usvu_version, n1.vst_usvu_upVer, n1.vst_usvu_amount, format_percent(n1.vst_usvu_amount, n2.vst_usvu_amount) vst_usvu_dod, format_percent(n1.vst_usvu_amount, n3.vst_usvu_amount) vst_usvu_wow, format_percent(n1.vst_usvu_amount, n4.vst_usvu_amount) vst_usvu_mom, cur_timestamp() vst_usvu_addtime, cur_user() vst_usvu_creator, random_string(10) vst_usvu_id, {DT8} vst_usvu_date FROM vst_user_sum_version_upVer n1 LEFT JOIN vst_user_sum_version_upVer1 n2 ON (n1.vst_usvu_pkg = n2.vst_usvu_pkg AND n1.vst_usvu_version=n2.vst_usvu_version AND n1.vst_usvu_upVer = n2.vst_usvu_upVer) LEFT JOIN vst_user_sum_version_upVer7 n3 ON (n1.vst_usvu_pkg = n3.vst_usvu_pkg AND n1.vst_usvu_version=n3.vst_usvu_version AND n1.vst_usvu_upVer = n3.vst_usvu_upVer) LEFT JOIN vst_user_sum_version_upVer30 n4 ON (n1.vst_usvu_pkg = n4.vst_usvu_pkg AND n1.vst_usvu_version=n2.vst_usvu_version AND n1.vst_usvu_upVer = n4.vst_usvu_upVer)"
+  },
+  {
+    "name": "用户活跃(汇总)统计",
+    "tableName": "vst_user_active",
+    "dateField": "vst_ua_date",
+    "disabled": false,
+    "minusDay": [
+      -1,
+      -7,
+      -30
+    ],
+    "dorisQuery": "SELECT pkg vst_ua_pkg ,COUNT(DISTINCT IF(activeDate BETWEEN '{DT}' AND '{DT}', uuid_md5, null)) vst_ua_amount ,COUNT(DISTINCT IF(activeDate BETWEEN '{DT_B7}' AND '{DT}', uuid_md5, null)) vst_ua_week ,COUNT(DISTINCT IF(activeDate BETWEEN '{DT_B30}' AND '{DT}', uuid_md5, null)) vst_ua_month FROM user_accumulates t1 LATERAL VIEW EXPLODE_SPLIT(t1.activeDates,',') tmp AS activeDate WHERE activeDate BETWEEN '{DT_B30}' AND '{DT}' GROUP BY vst_ua_pkg",
+    "h2Query": "SELECT n1.vst_ua_pkg ,n1.vst_ua_amount ,format_percent(n1.vst_ua_amount,n2.vst_ua_amount) vst_ua_dod ,format_percent(n1.vst_ua_amount,n3.vst_ua_amount) vst_ua_wow ,format_percent(n1.vst_ua_amount,n4.vst_ua_amount) vst_ua_mom ,n1.vst_ua_week ,format_percent(n1.vst_ua_week,n2.vst_ua_week) vst_ua_week_dod ,format_percent(n1.vst_ua_week,n3.vst_ua_week) vst_ua_week_wow ,format_percent(n1.vst_ua_week,n4.vst_ua_week) vst_ua_week_mom ,n1.vst_ua_month ,format_percent(n1.vst_ua_month,n2.vst_ua_month) vst_ua_month_dod ,format_percent(n1.vst_ua_month,n3.vst_ua_month) vst_ua_month_wow ,format_percent(n1.vst_ua_month,n4.vst_ua_month) vst_ua_month_mom ,cur_timestamp() vst_ua_addtime ,cur_user() vst_ua_creator ,random_string(10) vst_ua_id ,{DT8} vst_ua_date FROM vst_user_active n1 LEFT JOIN vst_user_active1 n2 ON(n1.vst_ua_pkg=n2.vst_ua_pkg) LEFT JOIN vst_user_active7 n3 ON(n1.vst_ua_pkg=n3.vst_ua_pkg) LEFT JOIN vst_user_active30 n4 ON(n1.vst_ua_pkg=n4.vst_ua_pkg)"
+  },
+  {
+    "name": "用户活跃(设备)统计",
+    "tableName": "vst_user_active_bdmodel",
+    "dateField": "vst_uab_date",
+    "disabled": false,
+    "minusDay": [
+      -1,
+      -7,
+      -30
+    ],
+    "dorisQuery": "SELECT pkg vst_uab_pkg , bdModel vst_uab_bdmodel ,COUNT(DISTINCT IF(activeDate BETWEEN '{DT}' AND '{DT}', uuid_md5, null)) vst_uab_amount ,COUNT(DISTINCT IF(activeDate BETWEEN '{DT_B7}' AND '{DT}', uuid_md5, null)) vst_uab_week FROM user_accumulates t1 LATERAL VIEW EXPLODE_SPLIT(t1.activeDates,',') tmp AS activeDate WHERE activeDate BETWEEN '{DT_B30}' AND '{DT}' GROUP BY vst_uab_pkg, vst_uab_bdmodel",
+    "h2Query": "SELECT n1.vst_uab_pkg, n1.vst_uab_bdmodel, n1.vst_uab_amount, format_percent(n1.vst_uab_amount, n2.vst_uab_amount) vst_uab_dod, format_percent(n1.vst_uab_amount, n3.vst_uab_amount) vst_uab_wow, format_percent(n1.vst_uab_amount, n4.vst_uab_amount) vst_uab_mom, n1.vst_uab_week, '0.00%' vst_uab_rate, cur_timestamp() vst_uab_addtime, cur_user() vst_uab_creator, random_string(10) vst_uab_id, {DT8} vst_uab_date FROM vst_user_active_bdmodel n1 LEFT JOIN vst_user_active_bdmodel1 n2 ON (n1.vst_uab_pkg = n2.vst_uab_pkg AND n1.vst_uab_bdmodel=n2.vst_uab_bdmodel) LEFT JOIN vst_user_active_bdmodel7 n3 ON (n1.vst_uab_pkg = n3.vst_uab_pkg AND n1.vst_uab_bdmodel=n3.vst_uab_bdmodel) LEFT JOIN vst_user_active_bdmodel30 n4 ON (n1.vst_uab_pkg = n4.vst_uab_pkg AND n1.vst_uab_bdmodel=n4.vst_uab_bdmodel)"
+  },
+  {
+    "name": "用户活跃(渠道&设备)统计",
+    "tableName": "vst_user_active_channel_bdmodel",
+    "dateField": "vst_uacb_date",
+    "disabled": true,
+    "minusDay": [
+      -1,
+      -7,
+      -30
+    ],
+    "dorisQuery": "SELECT pkg vst_uacb_pkg , bdModel vst_uacb_bdmodel , channel vst_uacb_channel ,COUNT(DISTINCT IF(activeDate BETWEEN '{DT}' AND '{DT}', uuid_md5, null)) vst_uacb_amount ,COUNT(DISTINCT IF(activeDate BETWEEN '{DT_B7}' AND '{DT}', uuid_md5, null)) vst_uacb_week FROM user_accumulates t1 LATERAL VIEW EXPLODE_SPLIT(t1.activeDates,',') tmp AS activeDate WHERE activeDate BETWEEN '{DT_B30}' AND '{DT}' GROUP BY vst_uacb_pkg, vst_uacb_bdmodel, vst_uacb_channel",
+    "h2Query": "SELECT n1.vst_uacb_pkg, n1.vst_uacb_bdmodel, n1.vst_uacb_channel,n1.vst_uacb_amount, format_percent(n1.vst_uacb_amount, n2.vst_uacb_amount) vst_uacb_dod, format_percent(n1.vst_uacb_amount, n3.vst_uacb_amount) vst_uacb_wow, format_percent(n1.vst_uacb_amount, n4.vst_uacb_amount) vst_uacb_mom, n1.vst_uacb_week, '0.00%' vst_uacb_rate, cur_timestamp() vst_uacb_addtime, cur_user() vst_uacb_creator, random_string(10) vst_uacb_id, {DT8} vst_uacb_date FROM vst_user_active_channel_bdmodel n1 LEFT JOIN vst_user_active_channel_bdmodel1 n2 ON (n1.vst_uacb_pkg = n2.vst_uacb_pkg AND n1.vst_uacb_bdmodel=n2.vst_uacb_bdmodel AND n1.vst_uacb_channel=n2.vst_uacb_channel) LEFT JOIN vst_user_active_channel_bdmodel7 n3 ON (n1.vst_uacb_pkg = n3.vst_uacb_pkg AND n1.vst_uacb_bdmodel=n3.vst_uacb_bdmodel AND n1.vst_uacb_channel=n3.vst_uacb_channel) LEFT JOIN vst_user_active_channel_bdmodel30 n4 ON (n1.vst_uacb_pkg = n4.vst_uacb_pkg AND n1.vst_uacb_bdmodel=n4.vst_uacb_bdmodel AND n1.vst_uacb_channel=n4.vst_uacb_channel)"
+  },
+  {
+    "name": "用户活跃(版本&设备)统计",
+    "tableName": "vst_user_active_version_bdmodel",
+    "dateField": "vst_uavb_date",
+    "disabled": true,
+    "minusDay": [
+      -1,
+      -7,
+      -30
+    ],
+    "dorisQuery": "SELECT pkg vst_uavb_pkg , bdModel vst_uavb_bdmodel , verName vst_uavb_version ,COUNT(DISTINCT IF(activeDate BETWEEN '{DT}' AND '{DT}', uuid_md5, null)) vst_uavb_amount ,COUNT(DISTINCT IF(activeDate BETWEEN '{DT_B7}' AND '{DT}', uuid_md5, null)) vst_uavb_week FROM user_accumulates t1 LATERAL VIEW EXPLODE_SPLIT(t1.activeDates,',') tmp AS activeDate WHERE activeDate BETWEEN '{DT_B30}' AND '{DT}' GROUP BY vst_uavb_pkg, vst_uavb_bdmodel, vst_uavb_version",
+    "h2Query": "SELECT n1.vst_uavb_pkg, n1.vst_uavb_version,n1.vst_uavb_bdmodel,n1.vst_uavb_amount, format_percent(n1.vst_uavb_amount, n2.vst_uavb_amount) vst_uavb_dod, format_percent(n1.vst_uavb_amount, n3.vst_uavb_amount) vst_uavb_wow, format_percent(n1.vst_uavb_amount, n4.vst_uavb_amount) vst_uavb_mom, n1.vst_uavb_week, '0.00%' vst_uavb_rate, cur_timestamp() vst_uavb_addtime, cur_user() vst_uavb_creator, random_string(10) vst_uavb_id, {DT8} vst_uavb_date FROM vst_user_active_version_bdmodel n1 LEFT JOIN vst_user_active_version_bdmodel1 n2 ON (n1.vst_uavb_pkg = n2.vst_uavb_pkg AND n1.vst_uavb_version=n2.vst_uavb_version AND n1.vst_uavb_bdmodel=n2.vst_uavb_bdmodel) LEFT JOIN vst_user_active_version_bdmodel7 n3 ON (n1.vst_uavb_pkg = n3.vst_uavb_pkg AND n1.vst_uavb_version=n3.vst_uavb_version AND n1.vst_uavb_bdmodel=n3.vst_uavb_bdmodel) LEFT JOIN vst_user_active_version_bdmodel30 n4 ON (n1.vst_uavb_pkg = n4.vst_uavb_pkg AND n1.vst_uavb_version=n4.vst_uavb_version AND n1.vst_uavb_bdmodel=n4.vst_uavb_bdmodel)"
+  },
+  {
+    "name": "用户活跃(渠道)统计",
+    "tableName": "vst_user_active_channel",
+    "dateField": "vst_uac_date",
+    "disabled": false,
+    "minusDay": [
+      -1,
+      -7,
+      -30
+    ],
+    "dorisQuery": "SELECT pkg vst_uac_pkg , channel vst_uac_channel ,COUNT(DISTINCT IF(activeDate BETWEEN '{DT}' AND '{DT}', uuid_md5, null)) vst_uac_amount ,COUNT(DISTINCT IF(activeDate BETWEEN '{DT_B7}' AND '{DT}', uuid_md5, null)) vst_uac_week ,COUNT(DISTINCT IF(activeDate BETWEEN '{DT_B30}' AND '{DT}', uuid_md5, null)) vst_uac_month FROM user_accumulates t1 LATERAL VIEW EXPLODE_SPLIT(t1.activeDates,',') tmp AS activeDate WHERE activeDate BETWEEN '{DT_B30}' AND '{DT}' GROUP BY vst_uac_pkg, vst_uac_channel",
+    "h2Query": "SELECT n1.vst_uac_pkg, n1.vst_uac_channel, n1.vst_uac_amount, format_percent(n1.vst_uac_amount, n2.vst_uac_amount) vst_uac_dod, format_percent(n1.vst_uac_amount, n3.vst_uac_amount) vst_uac_wow, format_percent(n1.vst_uac_amount, n4.vst_uac_amount) vst_uac_mom, n1.vst_uac_week, format_percent(n1.vst_uac_week, n2.vst_uac_week) vst_uac_week_dod, format_percent(n1.vst_uac_week, n3.vst_uac_week) vst_uac_week_wow, format_percent(n1.vst_uac_week, n4.vst_uac_week) vst_uac_week_mom, n1.vst_uac_month, format_percent(n1.vst_uac_month, n2.vst_uac_month) vst_uac_month_dod, format_percent(n1.vst_uac_month, n3.vst_uac_month) vst_uac_month_wow, format_percent(n1.vst_uac_month, n4.vst_uac_month) vst_uac_month_mom, cur_timestamp() vst_uac_addtime, cur_user() vst_uac_creator, random_string(10) vst_uac_id, {DT8} vst_uac_date FROM vst_user_active_channel n1 LEFT JOIN vst_user_active_channel1 n2 ON (n1.vst_uac_pkg = n2.vst_uac_pkg AND n1.vst_uac_channel = n2.vst_uac_channel) LEFT JOIN vst_user_active_channel7 n3 ON (n1.vst_uac_pkg = n3.vst_uac_pkg AND n1.vst_uac_channel = n3.vst_uac_channel) LEFT JOIN vst_user_active_channel30 n4 ON (n1.vst_uac_pkg = n4.vst_uac_pkg AND n1.vst_uac_channel = n4.vst_uac_channel)"
+  },
+  {
+    "name": "用户活跃(省份)统计",
+    "tableName": "vst_user_active_province",
+    "dateField": "vst_uap_date",
+    "disabled": false,
+    "minusDay": [
+      -1,
+      -7,
+      -30
+    ],
+    "dorisQuery": "SELECT pkg vst_uap_pkg , province vst_uap_province ,COUNT(DISTINCT IF(activeDate BETWEEN '{DT}' AND '{DT}', uuid_md5, null)) vst_uap_amount ,COUNT(DISTINCT IF(activeDate BETWEEN '{DT_B7}' AND '{DT}', uuid_md5, null)) vst_uap_week ,COUNT(DISTINCT IF(activeDate BETWEEN '{DT_B30}' AND '{DT}', uuid_md5, null)) vst_uap_month FROM user_accumulates t1 LATERAL VIEW EXPLODE_SPLIT(t1.activeDates,',') tmp AS activeDate WHERE activeDate BETWEEN '{DT_B30}' AND '{DT}' GROUP BY vst_uap_pkg, vst_uap_province",
+    "h2Query": "SELECT n1.vst_uap_pkg, n1.vst_uap_province, n1.vst_uap_amount, format_percent(n1.vst_uap_amount, n2.vst_uap_amount) vst_uap_dod, format_percent(n1.vst_uap_amount, n3.vst_uap_amount) vst_uap_wow, format_percent(n1.vst_uap_amount, n4.vst_uap_amount) vst_uap_mom, n1.vst_uap_week, format_percent(n1.vst_uap_week, n2.vst_uap_week) vst_uap_week_dod, format_percent(n1.vst_uap_week, n3.vst_uap_week) vst_uap_week_wow, format_percent(n1.vst_uap_week, n4.vst_uap_week) vst_uap_week_mom, n1.vst_uap_month, format_percent(n1.vst_uap_month, n2.vst_uap_month) vst_uap_month_dod, format_percent(n1.vst_uap_month, n3.vst_uap_month) vst_uap_month_wow, format_percent(n1.vst_uap_month, n4.vst_uap_month) vst_uap_month_mom, cur_timestamp() vst_uap_addtime, cur_user() vst_uap_creator, random_string(10) vst_uap_id, {DT8} vst_uap_date FROM vst_user_active_province n1 LEFT JOIN vst_user_active_province1 n2 ON (n1.vst_uap_pkg = n2.vst_uap_pkg AND n1.vst_uap_province = n2.vst_uap_province) LEFT JOIN vst_user_active_province7 n3 ON (n1.vst_uap_pkg = n3.vst_uap_pkg AND n1.vst_uap_province = n3.vst_uap_province) LEFT JOIN vst_user_active_province30 n4 ON (n1.vst_uap_pkg = n4.vst_uap_pkg AND n1.vst_uap_province = n4.vst_uap_province)"
+  },
+  {
+    "name": "用户活跃(城市)统计",
+    "tableName": "vst_user_active_city",
+    "dateField": "vst_uaci_date",
+    "disabled": false,
+    "minusDay": [
+      -1,
+      -7,
+      -30
+    ],
+    "dorisQuery": "SELECT pkg vst_uaci_pkg , city vst_uaci_city ,COUNT(DISTINCT IF(activeDate BETWEEN '{DT}' AND '{DT}', uuid_md5, null)) vst_uaci_amount ,COUNT(DISTINCT IF(activeDate BETWEEN '{DT_B7}' AND '{DT}', uuid_md5, null)) vst_uaci_week ,COUNT(DISTINCT IF(activeDate BETWEEN '{DT_B30}' AND '{DT}', uuid_md5, null)) vst_uaci_month FROM user_accumulates t1 LATERAL VIEW EXPLODE_SPLIT(t1.activeDates,',') tmp AS activeDate WHERE activeDate BETWEEN '{DT_B30}' AND '{DT}' GROUP BY vst_uaci_pkg, vst_uaci_city",
+    "h2Query": "SELECT n1.vst_uaci_pkg, n1.vst_uaci_city, n1.vst_uaci_amount, format_percent(n1.vst_uaci_amount, n2.vst_uaci_amount) vst_uaci_dod, format_percent(n1.vst_uaci_amount, n3.vst_uaci_amount) vst_uaci_wow, format_percent(n1.vst_uaci_amount, n4.vst_uaci_amount) vst_uaci_mom, n1.vst_uaci_week, format_percent(n1.vst_uaci_week, n2.vst_uaci_week) vst_uaci_week_dod, format_percent(n1.vst_uaci_week, n3.vst_uaci_week) vst_uaci_week_wow, format_percent(n1.vst_uaci_week, n4.vst_uaci_week) vst_uaci_week_mom, n1.vst_uaci_month, format_percent(n1.vst_uaci_month, n2.vst_uaci_month) vst_uaci_month_dod, format_percent(n1.vst_uaci_month, n3.vst_uaci_month) vst_uaci_month_wow, format_percent(n1.vst_uaci_month, n4.vst_uaci_month) vst_uaci_month_mom, cur_timestamp() vst_uaci_addtime, cur_user() vst_uaci_creator, random_string(10) vst_uaci_id, {DT8} vst_uaci_date FROM vst_user_active_city n1 LEFT JOIN vst_user_active_city1 n2 ON (n1.vst_uaci_pkg = n2.vst_uaci_pkg AND n1.vst_uaci_city = n2.vst_uaci_city) LEFT JOIN vst_user_active_city7 n3 ON (n1.vst_uaci_pkg = n3.vst_uaci_pkg AND n1.vst_uaci_city = n3.vst_uaci_city) LEFT JOIN vst_user_active_city30 n4 ON (n1.vst_uaci_pkg = n4.vst_uaci_pkg AND n1.vst_uaci_city = n4.vst_uaci_city)"
+  },
+  {
+    "name": "用户活跃(升级)统计",
+    "tableName": "vst_user_active_upVer",
+    "dateField": "vst_uau_date",
+    "disabled": false,
+    "minusDay": [
+      -1,
+      -7,
+      -30
+    ],
+    "dorisQuery": "SELECT pkg vst_uau_pkg , verCode vst_uau_verNum ,COUNT(DISTINCT IF(activeDate BETWEEN '{DT}' AND '{DT}', uuid_md5, null)) vst_uau_amount ,COUNT(DISTINCT IF(activeDate BETWEEN '{DT_B7}' AND '{DT}', uuid_md5, null)) vst_uau_week ,COUNT(DISTINCT IF(activeDate BETWEEN '{DT_B30}' AND '{DT}', uuid_md5, null)) vst_uau_month FROM user_accumulates t1 LATERAL VIEW EXPLODE_SPLIT(t1.activeDates,',') tmp AS activeDate WHERE activeDate BETWEEN '{DT_B30}' AND '{DT}' GROUP BY vst_uau_pkg, vst_uau_verNum",
+    "h2Query": "SELECT n1.vst_uau_pkg, n1.vst_uau_verNum, n1.vst_uau_amount, format_percent(n1.vst_uau_amount, n2.vst_uau_amount) vst_uau_dod, format_percent(n1.vst_uau_amount, n3.vst_uau_amount) vst_uau_wow, format_percent(n1.vst_uau_amount, n4.vst_uau_amount) vst_uau_mom, n1.vst_uau_week, format_percent(n1.vst_uau_week, n2.vst_uau_week) vst_uau_week_dod, format_percent(n1.vst_uau_week, n3.vst_uau_week) vst_uau_week_wow, format_percent(n1.vst_uau_week, n4.vst_uau_week) vst_uau_week_mom, n1.vst_uau_month, format_percent(n1.vst_uau_month, n2.vst_uau_month) vst_uau_month_dod, format_percent(n1.vst_uau_month, n3.vst_uau_month) vst_uau_month_wow, format_percent(n1.vst_uau_month, n4.vst_uau_month) vst_uau_month_mom, cur_timestamp() vst_uau_addtime, cur_user() vst_uau_creator, random_string(10) vst_uau_id, {DT8} vst_uau_date FROM vst_user_active_upVer n1 LEFT JOIN vst_user_active_upVer1 n2 ON (n1.vst_uau_pkg = n2.vst_uau_pkg AND n1.vst_uau_verNum = n2.vst_uau_verNum) LEFT JOIN vst_user_active_upVer7 n3 ON (n1.vst_uau_pkg = n3.vst_uau_pkg AND n1.vst_uau_verNum = n3.vst_uau_verNum) LEFT JOIN vst_user_active_upVer30 n4 ON (n1.vst_uau_pkg = n4.vst_uau_pkg AND n1.vst_uau_verNum = n4.vst_uau_verNum)"
+  },
+  {
+    "name": "用户活跃(版本)统计",
+    "tableName": "vst_user_active_version",
+    "dateField": "vst_uav_date",
+    "disabled": false,
+    "minusDay": [
+      -1,
+      -7,
+      -30
+    ],
+    "dorisQuery": "SELECT pkg vst_uav_pkg , verName vst_uav_ver ,COUNT(DISTINCT IF(activeDate BETWEEN '{DT}' AND '{DT}', uuid_md5, null)) vst_uav_amount ,COUNT(DISTINCT IF(activeDate BETWEEN '{DT_B7}' AND '{DT}', uuid_md5, null)) vst_uav_week ,COUNT(DISTINCT IF(activeDate BETWEEN '{DT_B30}' AND '{DT}', uuid_md5, null)) vst_uav_month FROM user_accumulates t1 LATERAL VIEW EXPLODE_SPLIT(t1.activeDates,',') tmp AS activeDate WHERE activeDate BETWEEN '{DT_B30}' AND '{DT}' GROUP BY vst_uav_pkg, vst_uav_ver",
+    "h2Query": "SELECT n1.vst_uav_pkg, n1.vst_uav_ver, n1.vst_uav_amount, format_percent(n1.vst_uav_amount, n2.vst_uav_amount) vst_uav_dod, format_percent(n1.vst_uav_amount, n3.vst_uav_amount) vst_uav_wow, format_percent(n1.vst_uav_amount, n4.vst_uav_amount) vst_uav_mom, n1.vst_uav_week, format_percent(n1.vst_uav_week, n2.vst_uav_week) vst_uav_week_dod, format_percent(n1.vst_uav_week, n3.vst_uav_week) vst_uav_week_wow, format_percent(n1.vst_uav_week, n4.vst_uav_week) vst_uav_week_mom, n1.vst_uav_month, format_percent(n1.vst_uav_month, n2.vst_uav_month) vst_uav_month_dod, format_percent(n1.vst_uav_month, n3.vst_uav_month) vst_uav_month_wow, format_percent(n1.vst_uav_month, n4.vst_uav_month) vst_uav_month_mom, cur_timestamp() vst_uav_addtime, cur_user() vst_uav_creator, random_string(10) vst_uav_id, {DT8} vst_uav_date FROM vst_user_active_version n1 LEFT JOIN vst_user_active_version1 n2 ON (n1.vst_uav_pkg = n2.vst_uav_pkg AND n1.vst_uav_ver = n2.vst_uav_ver) LEFT JOIN vst_user_active_version7 n3 ON (n1.vst_uav_pkg = n3.vst_uav_pkg AND n1.vst_uav_ver = n3.vst_uav_ver) LEFT JOIN vst_user_active_version30 n4 ON (n1.vst_uav_pkg = n4.vst_uav_pkg AND n1.vst_uav_ver = n4.vst_uav_ver)"
+  },
+  {
+    "name": "用户活跃(版本&升级)统计",
+    "tableName": "vst_user_active_version_upVer",
+    "dateField": "vst_uavu_date",
+    "disabled": false,
+    "minusDay": [
+      -1,
+      -7,
+      -30
+    ],
+    "dorisQuery": "SELECT pkg vst_uavu_pkg , verName vst_uavu_version , verCode vst_uavu_upVer ,COUNT(DISTINCT IF(activeDate BETWEEN '{DT}' AND '{DT}', uuid_md5, null)) vst_uavu_amount ,COUNT(DISTINCT IF(activeDate BETWEEN '{DT_B7}' AND '{DT}', uuid_md5, null)) vst_uavu_week ,COUNT(DISTINCT IF(activeDate BETWEEN '{DT_B30}' AND '{DT}', uuid_md5, null)) vst_uavu_month FROM user_accumulates t1 LATERAL VIEW EXPLODE_SPLIT(t1.activeDates,',') tmp AS activeDate WHERE activeDate BETWEEN '{DT_B30}' AND '{DT}' GROUP BY vst_uavu_pkg, vst_uavu_version, vst_uavu_upVer",
+    "h2Query": "SELECT n1.vst_uavu_pkg, n1.vst_uavu_version, n1.vst_uavu_upVer, n1.vst_uavu_amount, format_percent(n1.vst_uavu_amount, n2.vst_uavu_amount) vst_uavu_dod, format_percent(n1.vst_uavu_amount, n3.vst_uavu_amount) vst_uavu_wow, format_percent(n1.vst_uavu_amount, n4.vst_uavu_amount) vst_uavu_mom, n1.vst_uavu_week, format_percent(n1.vst_uavu_week, n2.vst_uavu_week) vst_uavu_week_dod, format_percent(n1.vst_uavu_week, n3.vst_uavu_week) vst_uavu_week_wow, format_percent(n1.vst_uavu_week, n4.vst_uavu_week) vst_uavu_week_mom, n1.vst_uavu_month, format_percent(n1.vst_uavu_month, n2.vst_uavu_month) vst_uavu_month_dod, format_percent(n1.vst_uavu_month, n3.vst_uavu_month) vst_uavu_month_wow, format_percent(n1.vst_uavu_month, n4.vst_uavu_month) vst_uavu_month_mom, cur_timestamp() vst_uavu_addtime, cur_user() vst_uavu_creator, random_string(10) vst_uavu_id, {DT8} vst_uavu_date FROM vst_user_active_version_upVer n1 LEFT JOIN vst_user_active_version_upVer1 n2 ON (n1.vst_uavu_pkg = n2.vst_uavu_pkg AND n1.vst_uavu_version=n2.vst_uavu_version AND n1.vst_uavu_upVer = n2.vst_uavu_upVer) LEFT JOIN vst_user_active_version_upVer7 n3 ON (n1.vst_uavu_pkg = n3.vst_uavu_pkg AND n1.vst_uavu_version=n3.vst_uavu_version AND n1.vst_uavu_upVer = n3.vst_uavu_upVer) LEFT JOIN vst_user_active_version_upVer30 n4 ON (n1.vst_uavu_pkg = n4.vst_uavu_pkg AND n1.vst_uavu_version=n2.vst_uavu_version AND n1.vst_uavu_upVer = n4.vst_uavu_upVer)"
+  },
+  {
+    "name": "用户活跃(渠道&版本)统计",
+    "tableName": "vst_user_active_channel_version",
+    "dateField": "vst_uacv_date",
+    "disabled": false,
+    "minusDay": [
+      -1,
+      -7,
+      -30
+    ],
+    "dorisQuery": "SELECT pkg vst_uacv_pkg , verName vst_uacv_version , channel vst_uacv_channel ,COUNT(DISTINCT IF(activeDate BETWEEN '{DT}' AND '{DT}', uuid_md5, null)) vst_uacv_amount ,COUNT(DISTINCT IF(activeDate BETWEEN '{DT_B7}' AND '{DT}', uuid_md5, null)) vst_uacv_week ,COUNT(DISTINCT IF(activeDate BETWEEN '{DT_B30}' AND '{DT}', uuid_md5, null)) vst_uacv_month FROM user_accumulates t1 LATERAL VIEW EXPLODE_SPLIT(t1.activeDates,',') tmp AS activeDate WHERE activeDate BETWEEN '{DT_B30}' AND '{DT}' GROUP BY vst_uacv_pkg, vst_uacv_version, vst_uacv_channel",
+    "h2Query": "SELECT n1.vst_uacv_pkg, n1.vst_uacv_channel,n1.vst_uacv_version, n1.vst_uacv_amount, format_percent(n1.vst_uacv_amount, n2.vst_uacv_amount) vst_uacv_dod, format_percent(n1.vst_uacv_amount, n3.vst_uacv_amount) vst_uacv_wow, format_percent(n1.vst_uacv_amount, n4.vst_uacv_amount) vst_uacv_mom, n1.vst_uacv_week, format_percent(n1.vst_uacv_week, n2.vst_uacv_week) vst_uacv_week_dod, format_percent(n1.vst_uacv_week, n3.vst_uacv_week) vst_uacv_week_wow, format_percent(n1.vst_uacv_week, n4.vst_uacv_week) vst_uacv_week_mom, n1.vst_uacv_month, format_percent(n1.vst_uacv_month, n2.vst_uacv_month) vst_uacv_month_dod, format_percent(n1.vst_uacv_month, n3.vst_uacv_month) vst_uacv_month_wow, format_percent(n1.vst_uacv_month, n4.vst_uacv_month) vst_uacv_month_mom, cur_timestamp() vst_uacv_addtime, cur_user() vst_uacv_creator, random_string(10) vst_uacv_id, {DT8} vst_uacv_date FROM vst_user_active_channel_version n1 LEFT JOIN vst_user_active_channel_version1 n2 ON (n1.vst_uacv_pkg = n2.vst_uacv_pkg AND n1.vst_uacv_channel = n2.vst_uacv_channel AND n1.vst_uacv_version=n2.vst_uacv_version) LEFT JOIN vst_user_active_channel_version7 n3 ON (n1.vst_uacv_pkg = n3.vst_uacv_pkg AND n1.vst_uacv_channel = n3.vst_uacv_channel AND n1.vst_uacv_version=n3.vst_uacv_version) LEFT JOIN vst_user_active_channel_version30 n4 ON (n1.vst_uacv_pkg = n4.vst_uacv_pkg AND n1.vst_uacv_channel = n4.vst_uacv_channel AND n1.vst_uacv_version=n4.vst_uacv_version)"
+  },
+  {
+    "name": "用户留存(汇总)统计",
+    "tableName": "vst_user_retain",
+    "dateField": "vst_ur_date",
+    "disabled": false,
+    "minusDay": [
+      -1,
+      -7
+    ],
+    "dorisQuery": "SELECT pkg vst_ur_pkg , SUM(IF(activeDates LIKE '%{DT_B1}%' AND activeDates LIKE '%{DT}%',1,0)) vst_ur_amount , SUM(IF(activeDates LIKE '%{DT_B7}%' AND activeDates LIKE '%{DT}%',1,0)) vst_ur_week_amount , SUM(IF(activeDates LIKE '%{DT_B30}%' AND activeDates LIKE '%{DT}%',1,0)) vst_ur_month_amount , SUM(IF(activeDates LIKE '%{DT_B90}%' AND activeDates LIKE '%{DT}%',1,0)) vst_ur_season_amount FROM user_accumulates GROUP BY pkg",
+    "h2Query": "SELECT n1.vst_ur_pkg ,n1.vst_ur_amount ,format_percent(n1.vst_ur_amount,n2.vst_ur_amount) vst_ur_dod ,format_percent(n1.vst_ur_amount,n3.vst_ur_amount) vst_ur_wow ,format_percent(n1.vst_ur_amount,n1.vst_ur_amount) vst_ur_rate ,n1.vst_ur_week_amount ,format_percent(n1.vst_ur_week_amount,n2.vst_ur_week_amount) vst_ur_week_dod ,format_percent(n1.vst_ur_week_amount,n3.vst_ur_week_amount) vst_ur_week_wow ,format_percent(n1.vst_ur_amount,n2.vst_ur_week_amount) vst_ur_week_rate ,n1.vst_ur_month_amount ,format_percent(n1.vst_ur_month_amount,n2.vst_ur_month_amount) vst_ur_month_dod ,format_percent(n1.vst_ur_month_amount,n3.vst_ur_month_amount) vst_ur_month_wow ,format_percent(n1.vst_ur_amount,n2.vst_ur_month_amount) vst_ur_month_rate ,n1.vst_ur_season_amount ,format_percent(n1.vst_ur_season_amount,n2.vst_ur_season_amount) vst_ur_season_dod ,format_percent(n1.vst_ur_season_amount,n3.vst_ur_season_amount) vst_ur_season_wow ,format_percent(n1.vst_ur_amount,n3.vst_ur_season_amount) vst_ur_season_rate ,cur_timestamp() vst_ur_addtime , cur_user() vst_ur_creator , random_string(10) vst_ur_id , {DT8} vst_ur_date FROM vst_user_retain n1 LEFT JOIN vst_user_retain1 n2 ON(n1.vst_ur_pkg=n2.vst_ur_pkg) LEFT JOIN vst_user_retain7 n3 ON(n1.vst_ur_pkg=n3.vst_ur_pkg)"
+  },
+  {
+    "name": "用户留存(渠道)统计",
+    "tableName": "vst_user_retain_channel",
+    "dateField": "vst_urc_date",
+    "disabled": false,
+    "minusDay": [
+      -1,
+      -7
+    ],
+    "dorisQuery": "SELECT pkg vst_urc_pkg , channel vst_urc_channel , SUM(IF(activeDates LIKE '%{DT_B1}%' AND activeDates LIKE '%{DT}%',1,0)) vst_urc_amount , SUM(IF(activeDates LIKE '%{DT_B7}%' AND activeDates LIKE '%{DT}%',1,0)) vst_urc_week_amount , SUM(IF(activeDates LIKE '%{DT_B30}%' AND activeDates LIKE '%{DT}%',1,0)) vst_urc_month_amount , SUM(IF(activeDates LIKE '%{DT_B90}%' AND activeDates LIKE '%{DT}%',1,0)) vst_urc_season_amount FROM user_accumulates GROUP BY vst_urc_pkg, vst_urc_channel",
+    "h2Query": "SELECT n1.vst_urc_pkg, n1.vst_urc_channel, n1.vst_urc_amount, format_percent(n1.vst_urc_amount, n2.vst_urc_amount) vst_urc_dod, format_percent(n1.vst_urc_amount, n3.vst_urc_amount) vst_urc_wow, format_percent(n1.vst_urc_amount, n1.vst_urc_amount) vst_urc_rate, n1.vst_urc_week_amount, format_percent(n1.vst_urc_week_amount, n2.vst_urc_week_amount) vst_urc_week_dod, format_percent(n1.vst_urc_week_amount, n3.vst_urc_week_amount) vst_urc_week_wow, format_percent(n1.vst_urc_amount, n2.vst_urc_week_amount) vst_urc_week_rate, n1.vst_urc_month_amount, format_percent(n1.vst_urc_month_amount, n2.vst_urc_month_amount) vst_urc_month_dod, format_percent(n1.vst_urc_month_amount, n3.vst_urc_month_amount) vst_urc_month_wow, format_percent(n1.vst_urc_amount, n2.vst_urc_month_amount) vst_urc_month_rate, n1.vst_urc_season_amount, format_percent(n1.vst_urc_season_amount, n2.vst_urc_season_amount) vst_urc_season_dod, format_percent(n1.vst_urc_season_amount, n3.vst_urc_season_amount) vst_urc_season_wow, format_percent(n1.vst_urc_amount, n3.vst_urc_season_amount) vst_urc_season_rate, cur_timestamp() vst_urc_addtime, cur_user() vst_urc_creator, random_string(10) vst_urc_id, {DT8} vst_urc_date FROM vst_user_retain_channel n1 LEFT JOIN vst_user_retain_channel1 n2 ON (n1.vst_urc_pkg = n2.vst_urc_pkg AND n1.vst_urc_channel=n2.vst_urc_channel) LEFT JOIN vst_user_retain_channel7 n3 ON (n1.vst_urc_pkg = n3.vst_urc_pkg AND n1.vst_urc_channel=n3.vst_urc_channel)"
+  },
+  {
+    "name": "用户播放(城市)统计",
+    "tableName": "vst_movie_city",
+    "dateField": "vst_mc_date",
+    "disabled": false,
+    "minusDay": [
+      -1,
+      -7,
+      -30
+    ],
+    "dorisQuery": "SELECT TRIM(IFNULL(pkg, '')) vst_mc_pkg, TRIM(IFNULL(city, '')) vst_mc_city, COUNT(*) vst_mc_amount, COUNT(DISTINCT uuid) vst_mc_uv, 0 vst_mc_week_active, 0 vst_mc_month_active FROM user_events where requestTime BETWEEN '{BEGIN_OF_DAY}' AND '{END_OF_DAY}' AND (requestURI = '/action/movie_play' OR keyAction = 'movie_play') GROUP BY vst_mc_pkg, vst_mc_city",
+    "h2Query": "SELECT n1.vst_mc_pkg, n1.vst_mc_city, n1.vst_mc_amount, n1.vst_mc_week_active, n1.vst_mc_month_active, format_percent(n1.vst_mc_amount, n2.vst_mc_amount) vst_mc_amount_dod, format_percent(n1.vst_mc_amount, n3.vst_mc_amount) vst_mc_amount_wow, format_percent(n1.vst_mc_amount, n4.vst_mc_amount) vst_mc_amount_mom, n1.vst_mc_uv, format_percent(n1.vst_mc_uv, n2.vst_mc_uv) vst_mc_uv_dod, format_percent(n1.vst_mc_uv, n3.vst_mc_uv) vst_mc_uv_wow, format_percent(n1.vst_mc_uv, n4.vst_mc_uv) vst_mc_uv_mom, decimal_format(n1.vst_mc_amount,n1.vst_mc_uv) vst_mc_avg, cur_timestamp() vst_mc_addtime, cur_user() vst_mc_creator, random_string(10) vst_mc_id, {DT8} vst_mc_date FROM vst_movie_city n1 LEFT JOIN vst_movie_city1 n2 ON (n1.vst_mc_pkg = n2.vst_mc_pkg AND n1.vst_mc_city=n2.vst_mc_city) LEFT JOIN vst_movie_city7 n3 ON (n1.vst_mc_pkg = n3.vst_mc_pkg AND n1.vst_mc_city=n3.vst_mc_city) LEFT JOIN vst_movie_city30 n4 ON (n1.vst_mc_pkg = n4.vst_mc_pkg AND n1.vst_mc_city=n4.vst_mc_city)"
+  },
+  {
+    "name": "用户播放(影片)统计",
+    "tableName": "vst_movie_play",
+    "dateField": "vst_mp_date",
+    "disabled": false,
+    "minusDay": [
+      -1,
+      -7
+    ],
+    "dorisQuery": "SELECT TRIM(IFNULL(pkg, '')) vst_mp_pkg, TRIM(IFNULL(nameId, '')) vst_mp_uuid, max(IFNULL(specId, 0)) vst_mp_special_type, max(IFNULL(cid, 0)) vst_mp_cid, max(TRIM(IFNULL(name, ''))) vst_mp_name, COUNT(1) vst_mp_vv, COUNT(DISTINCT uuid) vst_mp_uv, SUM(IFNULL(duration,0)) vst_mp_playtime FROM user_events WHERE requestTime BETWEEN '{BEGIN_OF_DAY}' and '{END_OF_DAY}' AND (requestURI = '/action/movie_play' OR keyAction = 'movie_play') GROUP BY vst_mp_pkg, vst_mp_uuid",
+    "h2Query": "SELECT n1.vst_mp_pkg,n1.vst_mp_uuid,n1.vst_mp_special_type,n1.vst_mp_cid,n1.vst_mp_name,n1.vst_mp_vv,n1.vst_mp_uv,n1.vst_mp_playtime ,format_percent(n1.vst_mp_vv,n2.vst_mp_vv) vst_mp_vv_dod ,format_percent(n1.vst_mp_uv,n2.vst_mp_uv) vst_mp_uv_dod ,format_percent(n1.vst_mp_vv,n3.vst_mp_vv) vst_mp_vv_wow ,format_percent(n1.vst_mp_uv,n3.vst_mp_uv) vst_mp_uv_wow ,decimal_format(n1.vst_mp_vv,n1.vst_mp_uv) vst_mp_avg ,decimal_format(n1.vst_mp_playtime,n1.vst_mp_uv) vst_mp_playtime_avg ,cur_timestamp() vst_mp_addtime ,cur_user() vst_mp_creator ,random_string(10) vst_mp_id ,{DT8} vst_mp_date FROM vst_movie_play n1 LEFT JOIN vst_movie_play1 n2 ON(n1.vst_mp_pkg=n2.vst_mp_pkg AND n1.vst_mp_uuid=n2.vst_mp_uuid) LEFT JOIN vst_movie_play7 n3 ON(n1.vst_mp_pkg=n3.vst_mp_pkg AND n1.vst_mp_uuid=n3.vst_mp_uuid)"
+  },
+  {
+    "name": "用户播放(搜索)统计",
+    "tableName": "vst_movie_search",
+    "dateField": "vst_mos_date",
+    "disabled": false,
+    "minusDay": [
+      -1,
+      -7
+    ],
+    "dorisQuery": "SELECT TRIM(IFNULL(pkg, '')) vst_mos_pkg, TRIM(IFNULL(nameId, '')) vst_mos_uuid, max(IFNULL(specId, 0)) vst_mos_special_type, max(IFNULL(cid, 0)) vst_mos_cid, max(TRIM(IFNULL(name, ''))) vst_mos_name, COUNT(*) vst_mos_amount, COUNT(DISTINCT uuid) vst_mos_uv FROM user_events WHERE requestTime BETWEEN '{BEGIN_OF_DAY}' AND '{END_OF_DAY}' AND (requestURI = '/action/movie_play' OR keyAction = 'movie_play') AND prePage = 'net.myvst.v2.globalsearch.GlobalSearchActivity' GROUP BY vst_mos_pkg, vst_mos_uuid",
+    "h2Query": "SELECT n1.vst_mos_pkg,n1.vst_mos_uuid,n1.vst_mos_special_type,n1.vst_mos_cid,n1.vst_mos_name,n1.vst_mos_amount,n1.vst_mos_uv ,format_percent(n1.vst_mos_amount,n2.vst_mos_amount) vst_mos_amount_dod ,format_percent(n1.vst_mos_uv,n2.vst_mos_uv) vst_mos_uv_dod ,format_percent(n1.vst_mos_amount,n3.vst_mos_amount) vst_mos_amount_wow ,format_percent(n1.vst_mos_uv,n3.vst_mos_uv) vst_mos_uv_wow ,decimal_format(n1.vst_mos_amount,n1.vst_mos_uv) vst_mos_avg ,cur_timestamp() vst_mos_addtime ,cur_user() vst_mos_creator ,random_string(10) vst_mos_id ,{DT8} vst_mos_date FROM vst_movie_search n1 LEFT JOIN vst_movie_search1 n2 ON(n1.vst_mos_pkg=n2.vst_mos_pkg AND n1.vst_mos_uuid=n2.vst_mos_uuid) LEFT JOIN vst_movie_search7 n3 ON(n1.vst_mos_pkg=n3.vst_mos_pkg AND n1.vst_mos_uuid=n3.vst_mos_uuid)"
+  },
+  {
+    "name": "用户播放(分类)统计",
+    "tableName": "vst_movie_classify_play",
+    "dateField": "vst_mcp_date",
+    "disabled": false,
+    "minusDay": [
+      -1,
+      -7
+    ],
+    "dorisQuery": "SELECT TRIM(IFNULL(pkg, '')) vst_mcp_pkg, -2 vst_mcp_special_type, IFNULL(cid, 0) vst_mcp_cid, COUNT(*) vst_mcp_vv, COUNT(DISTINCT uuid) vst_mcp_uv, SUM(IFNULL(duration,0)) vst_mcp_playtime FROM user_events WHERE requestTime BETWEEN '{BEGIN_OF_DAY}' AND '{END_OF_DAY}' AND (requestURI = '/action/movie_play' OR keyAction = 'movie_play') GROUP BY vst_mcp_pkg, vst_mcp_cid",
+    "h2Query": "SELECT n1.vst_mcp_pkg,n1.vst_mcp_special_type,n1.vst_mcp_cid,n1.vst_mcp_vv,n1.vst_mcp_uv,n1.vst_mcp_playtime ,format_percent(n1.vst_mcp_vv,n2.vst_mcp_vv) vst_mcp_vv_dod ,format_percent(n1.vst_mcp_uv,n2.vst_mcp_uv) vst_mcp_uv_dod ,format_percent(n1.vst_mcp_vv,n3.vst_mcp_vv) vst_mcp_vv_wow ,format_percent(n1.vst_mcp_uv,n3.vst_mcp_uv) vst_mcp_uv_wow ,decimal_format(n1.vst_mcp_vv,n1.vst_mcp_uv) vst_mcp_avg ,decimal_format(n1.vst_mcp_playtime,n1.vst_mcp_uv) vst_mcp_playtime_avg ,cur_timestamp() vst_mcp_addtime ,cur_user() vst_mcp_creator ,random_string(10) vst_mcp_id ,{DT8} vst_mcp_date FROM vst_movie_classify_play n1 LEFT JOIN vst_movie_classify_play1 n2 ON(n1.vst_mcp_pkg=n2.vst_mcp_pkg AND n1.vst_mcp_special_type=n2.vst_mcp_special_type AND n1.vst_mcp_cid=n2.vst_mcp_cid) LEFT JOIN vst_movie_classify_play7 n3 ON(n1.vst_mcp_pkg=n3.vst_mcp_pkg AND n1.vst_mcp_special_type=n3.vst_mcp_special_type AND n1.vst_mcp_cid=n3.vst_mcp_cid)"
+  },
+  {
+    "name": "用户播放(汇总)统计",
+    "tableName": "vst_movie_total_play",
+    "dateField": "vst_mtp_date",
+    "disabled": false,
+    "minusDay": [
+      -1,
+      -7
+    ],
+    "dorisQuery": "SELECT TRIM(IFNULL(pkg, '')) vst_mtp_pkg, COUNT(*) vst_mtp_vv, COUNT(DISTINCT uuid) vst_mtp_uv, SUM(IFNULL(duration,0)) vst_mtp_playtime FROM user_events WHERE requestTime BETWEEN '{BEGIN_OF_DAY}' AND '{END_OF_DAY}' AND (requestURI = '/action/movie_play' OR keyAction = 'movie_play') GROUP BY vst_mtp_pkg",
+    "h2Query": "SELECT n1.vst_mtp_pkg,n1.vst_mtp_vv,n1.vst_mtp_uv,n1.vst_mtp_playtime,format_percent(n1.vst_mtp_vv,n2.vst_mtp_vv) vst_mtp_dod ,format_percent(n1.vst_mtp_uv,n2.vst_mtp_uv) vst_mtp_uv_dod ,format_percent(n1.vst_mtp_vv,n3.vst_mtp_vv) vst_mtp_wow ,format_percent(n1.vst_mtp_uv,n3.vst_mtp_uv) vst_mtp_uv_wow ,decimal_format(n1.vst_mtp_vv,n1.vst_mtp_uv) vst_mtp_avg ,decimal_format(n1.vst_mtp_playtime,n1.vst_mtp_uv) vst_mtp_playtime_avg ,'' vst_mtp_rate,cur_timestamp() vst_mtp_addtime ,cur_user() vst_mtp_creator ,random_string(10) vst_mtp_id ,{DT8} vst_mtp_date FROM vst_movie_total_play n1 LEFT JOIN vst_movie_total_play1 n2 ON(n1.vst_mtp_pkg=n2.vst_mtp_pkg) LEFT JOIN vst_movie_total_play7 n3 ON(n1.vst_mtp_pkg=n3.vst_mtp_pkg)"
+  },
+  {
+    "name": "用户播放(渠道)统计",
+    "tableName": "vst_movie_total_play_channel",
+    "dateField": "vst_mtpc_date",
+    "disabled": false,
+    "minusDay": [
+      -1,
+      -7
+    ],
+    "dorisQuery": "SELECT TRIM(IFNULL(pkg, '')) vst_mtpc_pkg, TRIM(IFNULL(channel, '')) vst_mtpc_channel, COUNT(*) vst_mtpc_vv, COUNT(DISTINCT uuid) vst_mtpc_uv, SUM(IFNULL(duration,0)) vst_mtpc_playtime FROM user_events WHERE requestTime BETWEEN '{BEGIN_OF_DAY}' AND '{END_OF_DAY}' AND (requestURI = '/action/movie_play' OR keyAction = 'movie_play') GROUP BY vst_mtpc_pkg, vst_mtpc_channel",
+    "h2Query": "SELECT n1.vst_mtpc_pkg,n1.vst_mtpc_channel,n1.vst_mtpc_vv,n1.vst_mtpc_uv,n1.vst_mtpc_playtime,format_percent(n1.vst_mtpc_vv,n2.vst_mtpc_vv) vst_mtpc_dod ,format_percent(n1.vst_mtpc_uv,n2.vst_mtpc_uv) vst_mtpc_uv_dod ,format_percent(n1.vst_mtpc_vv,n3.vst_mtpc_vv) vst_mtpc_wow ,format_percent(n1.vst_mtpc_uv,n3.vst_mtpc_uv) vst_mtpc_uv_wow ,decimal_format(n1.vst_mtpc_vv,n1.vst_mtpc_uv) vst_mtpc_avg ,decimal_format(n1.vst_mtpc_playtime,n1.vst_mtpc_uv) vst_mtpc_playtime_avg ,'' vst_mtpc_rate,cur_timestamp() vst_mtpc_addtime ,cur_user() vst_mtpc_creator ,random_string(10) vst_mtpc_id ,{DT8} vst_mtpc_date FROM vst_movie_total_play_channel n1 LEFT JOIN vst_movie_total_play_channel1 n2 ON(n1.vst_mtpc_pkg=n2.vst_mtpc_pkg AND n1.vst_mtpc_channel=n2.vst_mtpc_channel) LEFT JOIN vst_movie_total_play_channel7 n3 ON(n1.vst_mtpc_pkg=n3.vst_mtpc_pkg AND n1.vst_mtpc_channel=n3.vst_mtpc_channel)"
+  },
+  {
+    "name": "用户播放(平台)统计",
+    "tableName": "vst_movie_site",
+    "dateField": "vst_ms_date",
+    "disabled": false,
+    "minusDay": [
+      -1,
+      -7
+    ],
+    "dorisQuery": "SELECT TRIM(IFNULL(pkg, '')) vst_ms_pkg, IFNULL(specId, 0) vst_ms_special_type, TRIM(IFNULL(site, '')) vst_ms_site, COUNT(*) vst_ms_vv, COUNT(DISTINCT uuid) vst_ms_uv, SUM(IFNULL(duration,0)) vst_ms_playtime FROM user_events WHERE requestTime BETWEEN '{BEGIN_OF_DAY}' AND '{END_OF_DAY}' AND (requestURI = '/action/movie_play' OR keyAction = 'movie_play') GROUP BY vst_ms_pkg, vst_ms_special_type, vst_ms_site",
+    "h2Query": "SELECT n1.vst_ms_pkg,n1.vst_ms_special_type,n1.vst_ms_site,n1.vst_ms_vv,n1.vst_ms_uv,n1.vst_ms_playtime,format_percent(n1.vst_ms_vv,n2.vst_ms_vv) vst_ms_vv_dod ,format_percent(n1.vst_ms_uv,n2.vst_ms_uv) vst_ms_uv_dod ,format_percent(n1.vst_ms_vv,n3.vst_ms_vv) vst_ms_vv_wow ,format_percent(n1.vst_ms_uv,n3.vst_ms_uv) vst_ms_uv_wow ,decimal_format(n1.vst_ms_vv,n1.vst_ms_uv) vst_ms_avg ,decimal_format(n1.vst_ms_playtime,n1.vst_ms_uv) vst_ms_playtime_avg,cur_timestamp() vst_ms_addtime ,cur_user() vst_ms_creator ,random_string(10) vst_ms_id ,{DT8} vst_ms_date FROM vst_movie_site n1 LEFT JOIN vst_movie_site1 n2 ON(n1.vst_ms_pkg=n2.vst_ms_pkg AND n1.vst_ms_special_type=n2.vst_ms_special_type AND n1.vst_ms_site=n2.vst_ms_site) LEFT JOIN vst_movie_site7 n3 ON(n1.vst_ms_pkg=n3.vst_ms_pkg AND n1.vst_ms_special_type=n3.vst_ms_special_type AND n1.vst_ms_site=n3.vst_ms_site)"
+  },
+  {
+    "name": "用户播放(专题)统计",
+    "tableName": "vst_topic_play",
+    "dateField": "vst_tp_date",
+    "disabled": false,
+    "minusDay": [
+      -1,
+      -7
+    ],
+    "dorisQuery": "SELECT TRIM(IFNULL(pkg, '')) vst_tp_pkg, TRIM(IFNULL(topicId, '')) vst_tp_topicId, max(TRIM(IFNULL(topicType, ''))) vst_tp_template, max(IFNULL(specId, 0)) vst_tp_special_type, max(IFNULL(topicCid, 0)) vst_tp_cid, max(TRIM(IFNULL(topic, ''))) vst_tp_name, COUNT(*) vst_tp_vv, COUNT(DISTINCT uuid) vst_tp_uv, SUM(IFNULL(duration,0)) vst_tp_playtime FROM user_events WHERE requestTime BETWEEN '{BEGIN_OF_DAY}' AND '{END_OF_DAY}' AND (requestURI = '/action/movie_play' OR keyAction = 'movie_play') AND topicId IS NOT NULL GROUP BY vst_tp_pkg, vst_tp_topicId",
+    "h2Query": "SELECT n1.vst_tp_pkg,n1.vst_tp_topicId,n1.vst_tp_template,n1.vst_tp_special_type,n1.vst_tp_cid,n1.vst_tp_name,n1.vst_tp_vv,n1.vst_tp_uv,n1.vst_tp_playtime ,format_percent(n1.vst_tp_vv,n2.vst_tp_vv) vst_tp_vv_dod ,format_percent(n1.vst_tp_uv,n2.vst_tp_uv) vst_tp_uv_dod ,format_percent(n1.vst_tp_vv,n3.vst_tp_vv) vst_tp_vv_wow ,format_percent(n1.vst_tp_uv,n3.vst_tp_uv) vst_tp_uv_wow ,decimal_format(n1.vst_tp_vv,n1.vst_tp_uv) vst_tp_avg ,decimal_format(n1.vst_tp_playtime,n1.vst_tp_uv) vst_tp_playtime_avg ,cur_timestamp() vst_tp_addtime ,cur_user() vst_tp_creator ,random_string(10) vst_tp_id ,{DT8} vst_tp_date FROM vst_topic_play n1 LEFT JOIN vst_topic_play1 n2 ON(n1.vst_tp_pkg=n2.vst_tp_pkg AND n1.vst_tp_topicId=n2.vst_tp_topicId) LEFT JOIN vst_topic_play7 n3 ON(n1.vst_tp_pkg=n3.vst_tp_pkg AND n1.vst_tp_topicId=n3.vst_tp_topicId)"
+  },
+  {
+    "name": "用户点击(专题)统计",
+    "tableName": "vst_topic_click",
+    "dateField": "vst_tc_date",
+    "disabled": false,
+    "minusDay": [
+      -1,
+      -7
+    ],
+    "dorisQuery": "SELECT TRIM(IFNULL(pkg, '')) vst_tc_pkg, TRIM(IFNULL(topicId, '')) vst_tc_topicId, max(TRIM(IFNULL(topicType, ''))) vst_tc_template, max(IFNULL(specId, 0)) vst_tc_special_type, max(IFNULL(topicCid, 0)) vst_tc_cid, max(TRIM(IFNULL(topic, ''))) vst_tc_name, COUNT(1) vst_tc_amount, COUNT(DISTINCT uuid) vst_tc_uv FROM user_events WHERE requestTime BETWEEN '{BEGIN_OF_DAY}' AND '{END_OF_DAY}' AND (requestURI = '/action/click' OR keyAction = 'click') AND topicId IS NOT NULL GROUP BY vst_tc_pkg, vst_tc_topicId",
+    "h2Query": "SELECT n1.vst_tc_pkg, n1.vst_tc_topicId, n1.vst_tc_template, n1.vst_tc_special_type, n1.vst_tc_cid, n1.vst_tc_name, n1.vst_tc_amount, n1.vst_tc_uv, format_percent(n1.vst_tc_amount, n2.vst_tc_amount) vst_tc_amount_dod, format_percent(n1.vst_tc_uv, n2.vst_tc_uv) vst_tc_uv_dod, format_percent(n1.vst_tc_amount, n3.vst_tc_amount) vst_tc_amount_wow, format_percent(n1.vst_tc_uv, n3.vst_tc_uv) vst_tc_uv_wow, decimal_format(n1.vst_tc_amount, n1.vst_tc_uv) vst_tc_avg, cur_timestamp() vst_tc_addtime, cur_user() vst_tc_creator, random_string(10) vst_tc_id, {DT8} vst_tc_date FROM vst_topic_click n1 LEFT JOIN vst_topic_click1 n2 ON (n1.vst_tc_pkg = n2.vst_tc_pkg AND n1.vst_tc_topicId = n2.vst_tc_topicId) LEFT JOIN vst_topic_click7 n3 ON (n1.vst_tc_pkg = n3.vst_tc_pkg AND n1.vst_tc_topicId = n3.vst_tc_topicId)"
+  },
+  {
+    "name": "用户启动(汇总)统计",
+    "tableName": "vst_user_startup",
+    "dateField": "vst_us_date",
+    "disabled": false,
+    "minusDay": [
+      -1,
+      -7,
+      -30
+    ],
+    "dorisQuery": "SELECT TRIM(IFNULL(pkg,'')) vst_us_pkg, COUNT(DISTINCT uuid) vst_us_uv, COUNT(*) vst_us_amount FROM `ods`.`user_events` WHERE requestTime BETWEEN '{BEGIN_OF_DAY}' AND '{END_OF_DAY}' AND (keyAction = 'user' OR requestURI ='/action/user') GROUP BY vst_us_pkg",
+    "h2Query": "SELECT n1.vst_us_pkg, n1.vst_us_amount, format_percent(n1.vst_us_amount, n2.vst_us_amount) vst_us_dod, format_percent(n1.vst_us_amount, n3.vst_us_amount) vst_us_wow, format_percent(n1.vst_us_amount, n4.vst_us_amount) vst_us_mom, n1.vst_us_uv, format_percent(n1.vst_us_uv, n2.vst_us_uv) vst_us_uv_dod, format_percent(n1.vst_us_uv, n3.vst_us_uv) vst_us_uv_wow, format_percent(n1.vst_us_uv, n4.vst_us_uv) vst_us_uv_mom, decimal_format(n1.vst_us_amount, n1.vst_us_uv) vst_us_avg, cur_timestamp() vst_us_addtime, cur_user() vst_us_creator, random_string(10) vst_us_id, {DT8} vst_us_date FROM vst_user_startup n1 LEFT JOIN vst_user_startup1 n2 ON (n1.vst_us_pkg = n2.vst_us_pkg) LEFT JOIN vst_user_startup7 n3 ON (n1.vst_us_pkg = n3.vst_us_pkg) LEFT JOIN vst_user_startup30 n4 ON (n1.vst_us_pkg = n4.vst_us_pkg)"
+  }
+]
