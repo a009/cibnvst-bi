@@ -1,0 +1,14 @@
+server:
+  port: 8080
+spring:
+  jackson:
+    default-property-inclusion: non_null
+  kafka:
+    producer:
+      client-id: producer-api
+      buffer-memory: 32MB
+      batch-size: 16KB
+      retries: 3
+      bootstrap-servers: localhost:9092
+    template:
+      default-topic: user_events
