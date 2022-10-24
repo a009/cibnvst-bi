@@ -36,7 +36,7 @@ public class ApiControllerTest {
 
     private byte[] mockData(){
         //language=JSON
-        String jsonStr = "{\"name\": \"zhangSan\", \"age\": 22, \"birthDay\": \"2022-10-21 23:59:59\"}";
+        String jsonStr = "[{\"name\": \"zhangSan\", \"age\": 22, \"birthDay\": \"2022-10-21 23:59:59\"},{\"name\": \"zhangSan\", \"age\": 22, \"birthDay\": \"2022-10-21 23:59:59\"}]";
         return ZipUtil.gzip(jsonStr.getBytes(StandardCharsets.UTF_8));
     }
 
